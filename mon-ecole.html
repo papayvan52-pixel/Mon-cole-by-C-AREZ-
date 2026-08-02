@@ -1,0 +1,3006 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Mon École by C-AREZ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --sidebar-1:#12A783; --sidebar-2:#EFC94C; --sidebar-3:#FF5C93; --sidebar-4:#4C7EFF; --sidebar-dark:#0B2038;
+    --paper:#F6F4FC; --ink:#221D3B; --line:#E6E1F5; --muted:#7A7591; --absent:#FF5C5C;
+    --gradient: linear-gradient(135deg,#12A783 0%,#EFC94C 40%,#FF5C93 70%,#4C7EFF 100%);
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:'Inter',-apple-system,'Segoe UI',Arial,sans-serif;background:var(--paper);color:var(--ink);}
+  h1,h2,h3{font-family:'Poppins',-apple-system,Arial,sans-serif;margin:0;}
+  input,select,textarea,button{font-family:inherit;}
+  button{cursor:pointer;}
+  body.dark{ --paper:#181622; --ink:#EDEAF6; --line:#33304A; --muted:#9C97BE; }
+  body.dark .card,body.dark table,body.dark .id-card-item{background:#221F30 !important;color:var(--ink);}
+  body.dark th{background:#2A2740 !important;color:var(--ink);}
+
+  /* Lock screen */
+  #lock-screen{position:fixed;inset:0;background:linear-gradient(160deg,var(--sidebar-1) 0%,var(--sidebar-2) 32%,var(--sidebar-3) 66%,var(--sidebar-4) 100%);
+    display:flex;align-items:center;justify-content:center;z-index:1000;padding:16px;}
+  #lock-box{background:#fff;border-radius:22px;box-shadow:0 25px 60px rgba(36,27,78,.45);padding:36px 32px;width:100%;max-width:380px;text-align:center;}
+  #lock-box img{width:64px;height:64px;object-fit:cover;border-radius:14px;margin-bottom:14px;}
+  #lock-box h1{font-size:21px;font-weight:700;}
+  #lock-tagline{font-size:12px;color:var(--muted);font-style:italic;margin-bottom:18px;}
+  #code-input{width:100%;text-align:center;letter-spacing:.4em;font-size:20px;padding:12px;border-radius:14px;border:1px solid var(--line);margin-bottom:10px;background:#FAF9FE;}
+  #code-input.error{border-color:var(--absent);}
+  #code-error{font-size:12px;color:var(--absent);min-height:16px;margin-bottom:6px;}
+  #unlock-btn{width:100%;padding:12px;border:none;border-radius:999px;background:var(--gradient);color:#fff;font-size:14px;font-weight:600;}
+  #default-code-hint{font-size:10px;color:#B5AFCB;margin-top:14px;}
+
+  /* Layout */
+  #app{display:none;min-height:100vh;flex-direction:column;}
+  @media(min-width:860px){ #app{flex-direction:row;} }
+  #sidebar{background:linear-gradient(160deg,var(--sidebar-1) 0%,var(--sidebar-2) 32%,var(--sidebar-3) 66%,var(--sidebar-4) 100%);
+    color:#fff;flex-shrink:0;}
+  @media(min-width:860px){ #sidebar{width:280px;min-height:100vh;position:sticky;top:0;} }
+  .id-block{padding:16px 18px;border-bottom:1px solid rgba(255,255,255,.2);}
+  .id-row{display:flex;align-items:center;gap:12px;}
+  .id-img-wrap{position:relative;width:52px;height:52px;flex-shrink:0;}
+  .id-img-wrap img{width:52px;height:52px;object-fit:cover;border-radius:12px;border:2px solid rgba(255,255,255,.6);background:#fff;}
+  .id-edit-btn{position:absolute;bottom:-4px;right:-4px;width:19px;height:19px;background:#fff;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;font-size:10px;border:2px solid rgba(0,0,0,.15);}
+  .id-text .title{font-size:15px;font-weight:700;line-height:1.2;}
+  .id-text .sub{font-size:11px;opacity:.9;line-height:1.3;}
+  .id-text input{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);border-radius:6px;
+    color:#fff;font-size:12px;padding:4px 8px;margin-top:3px;width:100%;}
+  .id-text input::placeholder{color:rgba(255,255,255,.7);}
+
+  nav#tabs{display:flex;flex-direction:column;padding:10px 12px;gap:4px;}
+  .tab-btn{display:flex;align-items:center;gap:10px;padding:11px 14px;border:none;border-radius:10px;
+    background:transparent;color:rgba(255,255,255,.85);font-size:14px;text-align:left;font-weight:500;}
+  .tab-btn.active{background:rgba(255,255,255,.18);color:#fff;font-weight:700;}
+
+  #sidebar-bottom{padding:12px 16px 18px;margin-top:auto;}
+  .link-btn{display:flex;align-items:center;gap:6px;background:none;border:none;color:rgba(255,255,255,.85);font-size:11px;padding:4px 0;}
+  #save-now-btn{width:100%;padding:10px;border:none;border-radius:999px;background:rgba(255,255,255,.2);color:#fff;
+    font-size:13px;font-weight:600;margin-bottom:10px;}
+  #settings-panel{background:rgba(0,0,0,.18);border-radius:10px;padding:8px;margin:6px 0;display:none;}
+  #settings-panel input{width:100%;font-size:12px;padding:6px 8px;border-radius:6px;border:none;background:rgba(255,255,255,.15);color:#fff;margin-bottom:5px;}
+  #settings-msg{font-size:11px;min-height:14px;}
+  #settings-save{background:#fff;color:#221D3B;border:none;border-radius:6px;font-size:11px;padding:6px 10px;font-weight:700;}
+  #settings-cancel{background:none;border:none;color:rgba(255,255,255,.8);font-size:11px;padding:6px;}
+
+  #content{max-width:1200px;margin:0 auto;padding:28px 20px 60px;}
+  @media(min-width:860px){ #content{padding:36px 40px 60px;} }
+  .panel{display:none;} .panel.active{display:block;}
+  .section-header{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:12px;margin-bottom:20px;}
+  .eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:.14em;font-weight:700;margin-bottom:4px;}
+  .section-header h2{font-size:25px;font-weight:700;}
+
+  .card{background:#fff;border-radius:16px;border:1px solid var(--line);padding:20px;box-shadow:0 6px 18px rgba(90,60,180,.06);margin-bottom:22px;}
+  .field-grid{display:grid;grid-template-columns:1fr;gap:12px;}
+  @media(min-width:640px){ .field-grid{grid-template-columns:1fr 1fr;} }
+  @media(min-width:960px){ .field-grid{grid-template-columns:1fr 1fr 1fr;} }
+  .field label{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:5px;}
+  .field input,.field select{width:100%;padding:9px 11px;border-radius:8px;border:1px solid var(--line);font-size:13.5px;background:#fff;}
+  .field input[type=file]{padding:6px;font-size:12px;}
+  .statut-toggle{display:flex;border-radius:999px;overflow:hidden;border:1px solid var(--line);width:fit-content;}
+  .statut-toggle button{padding:8px 20px;border:none;background:#fff;color:var(--muted);font-size:13px;font-weight:600;}
+  .statut-toggle button.active-ancien{background:#4C7EFF;color:#fff;}
+  .statut-toggle button.active-nouveau{background:#FF5C93;color:#fff;}
+  .sexe-toggle{display:flex;border-radius:999px;overflow:hidden;border:1px solid var(--line);width:fit-content;}
+  .sexe-toggle button{padding:8px 16px;border:none;background:#fff;color:var(--muted);font-size:13px;font-weight:600;}
+  .sexe-toggle button.active-f{background:#FF5C93;color:#fff;}
+  .sexe-toggle button.active-m{background:#4C7EFF;color:#fff;}
+  #nouveau-fields{display:none;border-top:1px dashed var(--line);margin-top:16px;padding-top:16px;}
+  .btn-primary{padding:11px 22px;border:none;border-radius:999px;background:var(--gradient);color:#fff;font-size:14px;font-weight:700;box-shadow:0 8px 20px rgba(76,126,255,.28);}
+
+  table{border-collapse:collapse;width:100%;font-size:13px;}
+  th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;}
+  thead th{background:#F1EDFB;font-weight:700;font-size:11.5px;}
+  .badge{display:inline-block;padding:3px 10px;border-radius:999px;font-size:11px;font-weight:700;}
+  .badge.ancien{background:#E5ECFF;color:#3457D5;}
+  .badge.nouveau{background:#FFE1EC;color:#C23566;}
+  .badge.promu{background:#DCE8DA;color:#3F5A3D;}
+  .badge.redouble{background:#FFF3D6;color:#946A00;}
+  .thumb{width:34px;height:34px;object-fit:cover;border-radius:6px;border:1px solid var(--line);cursor:pointer;}
+  .del-btn{background:none;border:none;color:var(--absent);font-size:14px;}
+  .empty-msg{font-size:13px;color:var(--muted);font-style:italic;padding:14px 0;}
+
+  .level-card{background:#fff;border-radius:16px;border:1px solid var(--line);border-top:4px solid #4C7EFF;
+    margin-bottom:22px;overflow:hidden;box-shadow:0 6px 18px rgba(90,60,180,.06);}
+  .level-header{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;padding:16px 18px 8px;}
+  .level-header h3{font-size:18px;font-weight:700;}
+  .level-stats{display:flex;gap:14px;font-size:12px;color:var(--muted);font-weight:600;}
+  .level-table-wrap{overflow-x:auto;padding:0 18px 18px;}
+  .scolarite-input{width:100%;min-width:110px;padding:5px 7px;border-radius:6px;border:1px solid var(--line);font-size:12px;}
+
+  #photo-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:2500;display:none;align-items:center;justify-content:center;}
+  #photo-modal-overlay.show{display:flex;}
+  #photo-modal-overlay img{max-width:90vw;max-height:85vh;border-radius:10px;}
+
+  #toast-container{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:2000;display:flex;flex-direction:column;gap:8px;pointer-events:none;width:100%;align-items:center;padding:0 16px;}
+  .toast{background:#221D3B;color:#fff;padding:12px 20px;border-radius:999px;box-shadow:0 14px 34px rgba(30,20,70,.35);
+    font-size:13px;font-weight:500;opacity:0;transform:translateY(12px);transition:all .25s ease;max-width:90vw;}
+  .toast.show{opacity:1;transform:translateY(0);}
+  .toast.success{background:linear-gradient(135deg,#12A783,#4C7EFF);}
+  .toast.error{background:linear-gradient(135deg,#FF5C5C,#C97B3D);}
+
+/* ===================== Registre d'appel ===================== */
+.reg-subtabs{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap;border-bottom:1px solid var(--line);}
+.reg-subtab-btn{border:none;background:none;padding:10px 16px;font-size:13px;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:3px solid transparent;}
+.reg-subtab-btn.active{color:var(--ink);border-bottom:3px solid var(--sidebar-2);}
+.reg-subpanel{display:none;} .reg-subpanel.active{display:block;}
+
+table.reg-table{border-collapse:collapse;width:100%;font-size:12px;}
+table.reg-table th, table.reg-table td{border:1px solid var(--line);padding:5px 6px;text-align:center;vertical-align:middle;}
+table.reg-table th{background:#F1EDFB;color:var(--ink);font-weight:700;font-size:11px;}
+table.reg-table td input, table.reg-table td select{width:100%;border:none;background:transparent;text-align:center;font-size:12px;font-family:inherit;color:inherit;}
+table.reg-table td input:focus, table.reg-table td select:focus{background:#FFF7DD;outline:1px solid var(--sidebar-2);}
+.reg-scroll{overflow-x:auto;}
+
+.reg-fille td.reg-nomcell, .reg-fille td.reg-nomcell input{color:#D32F2F;font-weight:700;}
+.reg-garcon td.reg-nomcell, .reg-garcon td.reg-nomcell input{color:var(--sidebar-4);font-weight:700;}
+
+.reg-day-head{cursor:pointer;user-select:none;}
+.reg-day-head.ferie{background:#EDE7E0;color:#B4ADA0;text-decoration:line-through;}
+.reg-day-head .wd{display:block;font-size:10px;color:var(--muted);font-weight:400;}
+.reg-slot{cursor:pointer;user-select:none;font-weight:700;width:24px;}
+.reg-slot.absent{background:#FFE3E3;color:var(--absent);}
+.reg-slot.present{background:#E4F3EC;color:var(--sidebar-1);}
+.reg-slot.disabled{background:#F2F0EA;color:#C8C2B4;cursor:not-allowed;}
+
+.reg-effectif-row{display:flex;gap:16px;margin-bottom:14px;flex-wrap:wrap;}
+.reg-pill{background:#F1EDFB;border-radius:8px;padding:8px 16px;font-size:13px;color:var(--ink);font-weight:700;}
+.reg-pill span{color:var(--muted);font-weight:400;font-size:11px;display:block;text-transform:uppercase;letter-spacing:.05em;}
+.reg-pill.fille{color:#D32F2F;}
+.reg-pill.garcon{color:var(--sidebar-4);}
+
+.reg-formula{background:#F6F4FC;border:1px dashed var(--line);border-radius:8px;padding:12px 16px;font-size:12.5px;color:var(--ink);margin-top:14px;}
+.reg-formula div{margin-bottom:4px;}
+.reg-info{font-size:11.5px;color:var(--muted);background:#FFF8E6;border-left:3px solid var(--sidebar-2);padding:8px 12px;border-radius:4px;margin-top:10px;}
+
+.reg-arrete-bar{display:flex;gap:14px;align-items:flex-end;flex-wrap:wrap;background:#F6F4FC;border-radius:8px;padding:12px 16px;margin-bottom:16px;}
+.reg-arrete-bar label{font-size:11px;text-transform:uppercase;color:var(--muted);letter-spacing:.05em;display:flex;flex-direction:column;gap:4px;}
+.reg-arrete-bar input{padding:6px 8px;border:1px solid var(--line);border-radius:6px;font-size:13px;}
+.reg-arrete-warn{color:var(--absent);font-size:12px;font-weight:600;}
+
+.reg-certif{text-align:center;font-style:italic;font-weight:700;color:var(--ink);margin:22px 0 10px;font-size:14px;}
+.reg-sign-row{display:flex;justify-content:space-between;margin-top:10px;gap:24px;flex-wrap:wrap;}
+.reg-sign-box{flex:1;min-width:260px;}
+.reg-sign-box h4{font-size:11px;text-transform:uppercase;color:var(--muted);letter-spacing:.05em;margin:0 0 6px;}
+.reg-sign-box input.reg-name-input{width:100%;border:none;border-bottom:1px solid var(--line);padding:6px 4px;font-size:13px;background:transparent;margin-top:6px;}
+canvas.reg-sigpad{border:1px solid var(--line);border-radius:8px;background:#fff;touch-action:none;width:100%;max-width:320px;height:110px;}
+.reg-cachet-slot{display:flex;flex-direction:column;align-items:center;gap:4px;}
+.reg-cachet-slot .reg-stamp-name{font-family:Georgia,serif;font-weight:700;color:#2154C7;font-size:12px;letter-spacing:.03em;transform:rotate(-2deg);border-top:1px solid #2154C7;padding-top:3px;margin-top:2px;}
+.reg-cachet-missing{font-size:12px;color:var(--muted);font-style:italic;border:1px dashed var(--line);border-radius:8px;padding:14px;text-align:center;max-width:180px;}
+.reg-badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:700;}
+.reg-badge.oui{background:#DCE8DA;color:#3F5A3D;}
+.reg-badge.non{background:#FFE1EC;color:#C23566;}
+.reg-col-fille{color:#D32F2F !important;}
+.reg-col-garcon{color:var(--sidebar-4) !important;}
+.reg-stat-th-g{background:#E5ECFF !important;color:var(--sidebar-4) !important;}
+.reg-stat-th-f{background:#FBE1E1 !important;color:#D32F2F !important;}
+.reg-empty{text-align:center;padding:24px;color:var(--muted);font-size:13px;border:1px dashed var(--line);border-radius:8px;}
+@media(max-width:640px){.cachet-grid{grid-template-columns:1fr !important;}}
+/* Carte scolaire — modèle exact */
+.cis-cards-grid{display:flex;flex-wrap:wrap;gap:20px;margin-top:10px;}
+.cis-card-wrap{display:flex;flex-direction:column;gap:4px;}
+.cis-card-label{font-size:11px;color:var(--muted);font-weight:600;text-align:center;}
+.cis-card{width:360px;min-height:228px;border-radius:10px;background:#fff;
+  border:2px solid #ccc;box-shadow:0 2px 10px rgba(0,0,0,.12);overflow:hidden;flex-shrink:0;}
+
+/* RECTO */
+.cis-recto{width:100%;height:100%;padding:10px 12px;display:flex;flex-direction:column;font-family:Arial,sans-serif;}
+.cis-r-top{display:flex;align-items:flex-start;gap:8px;margin-bottom:6px;}
+.cis-r-flag{display:flex;flex-direction:column;width:28px;height:40px;border:0.5px solid #aaa;border-radius:2px;overflow:hidden;flex-shrink:0;}
+.cis-r-flag-g{flex:1;background:#008751;}
+.cis-r-flag-y{flex:1;background:#FCD116;}
+.cis-r-flag-r{flex:1;background:#E8112D;}
+.cis-r-header{flex:1;text-align:center;}
+.cis-r-rep{font-size:10px;font-weight:900;color:#C0392B;letter-spacing:.3px;text-transform:uppercase;}
+.cis-r-ddep{font-size:5.5px;color:#1B2A4A;letter-spacing:.2px;line-height:1.3;text-transform:uppercase;}
+.cis-r-region{font-size:6px;font-weight:700;color:#C0392B;text-transform:uppercase;}
+.cis-r-logo{width:48px;height:40px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.cis-r-logo img{max-width:100%;max-height:100%;object-fit:contain;}
+.cis-r-ecole{text-align:center;border-top:1.5px solid #1B2A4A;border-bottom:1.5px solid #1B2A4A;padding:3px 0;margin-bottom:3px;}
+.cis-r-ecole-type{font-size:11px;font-weight:900;color:#1B2A4A;text-transform:uppercase;letter-spacing:.3px;line-height:1.2;}
+.cis-r-ecole-nom{font-size:13px;font-weight:900;color:#12A783;text-transform:uppercase;letter-spacing:.3px;}
+.cis-r-adresse{font-size:7px;font-weight:700;color:#1B2A4A;text-align:center;margin-bottom:3px;}
+.cis-r-titre{font-size:9px;font-weight:900;color:#C0392B;text-align:center;text-transform:uppercase;letter-spacing:.3px;margin-bottom:5px;}
+.cis-r-body{display:flex;gap:8px;flex:1;}
+.cis-r-fields{flex:1;font-size:8.5px;color:#1B2A4A;line-height:2;}
+.cis-r-field{display:flex;gap:4px;align-items:flex-end;border-bottom:.5px solid #aaa;}
+.cis-r-field-label{font-weight:700;white-space:nowrap;min-width:44px;}
+.cis-r-field-val{flex:1;font-weight:600;}
+.cis-r-photo-col{display:flex;flex-direction:column;align-items:center;gap:4px;width:76px;flex-shrink:0;}
+.cis-r-photo{width:70px;height:78px;border:1.5px solid #aaa;border-radius:3px;overflow:hidden;display:flex;align-items:center;justify-content:center;background:#f5f5f5;}
+.cis-r-photo img{width:100%;height:100%;object-fit:cover;}
+.cis-r-photo-ph{font-size:9px;font-weight:700;color:#aaa;text-align:center;}
+.cis-r-titulaire{font-size:7px;color:#1B2A4A;text-align:center;}
+.cis-r-sig-line{width:60px;height:18px;border-bottom:1px solid #aaa;margin:0 auto;}
+
+/* VERSO */
+.cis-verso{width:100%;height:100%;padding:12px 14px;display:flex;flex-direction:column;font-family:Arial,sans-serif;background:#fff;}
+.cis-v-devise{font-size:14px;font-weight:900;color:#1B2A4A;text-align:center;margin-bottom:12px;}
+.cis-v-text{font-size:10px;color:#1B2A4A;line-height:2.2;flex:1;}
+.cis-v-text span.vr{color:#C0392B;font-weight:700;}
+.cis-v-text span.vg{color:#12A783;font-weight:700;}
+.cis-v-bottom{display:flex;align-items:flex-start;gap:10px;margin-top:10px;}
+.cis-v-sig-block{display:flex;flex-direction:column;align-items:center;gap:4px;}
+.cis-v-sig-img{max-width:70px;max-height:30px;object-fit:contain;}
+.cis-v-sig-line{width:80px;height:28px;border-bottom:1px solid #aaa;}
+.cis-v-sig-label{font-size:7px;color:#777;text-align:center;}
+.cis-v-cachet-rect{border:2px solid #C0392B;border-radius:3px;padding:4px 8px;font-size:7.5px;font-weight:700;color:#C0392B;font-family:Georgia,serif;text-align:center;line-height:1.4;}
+.cis-v-footer{font-size:7px;color:#1B2A4A;font-weight:700;text-align:center;margin-top:8px;font-style:italic;border-top:1px solid #eee;padding-top:6px;line-height:1.5;}
+/* Planif table */
+table.aff-planif-tbl{border-collapse:collapse;width:100%;font-size:10px;background:#fff;}
+table.aff-planif-tbl th,table.aff-planif-tbl td{border:1px solid #1A1A1A;padding:4px 5px;vertical-align:top;}
+table.aff-planif-tbl th{background:#E8E4D8;color:#1B2A4A;font-weight:700;font-size:9px;text-align:center;}
+table.aff-planif-tbl th.sem{background:#1B2A4A;color:#fff;font-size:9px;}
+table.aff-planif-tbl td.mat{background:#F0EDE5;font-weight:700;font-size:8.5px;color:#1B2A4A;white-space:nowrap;}
+table.aff-planif-tbl td.sub{background:#F7F5EF;font-size:8px;color:#726F63;padding-left:10px;}
+table.aff-planif-tbl td input{width:100%;border:none;background:transparent;font-size:9px;font-family:inherit;padding:1px 2px;color:#1A1A1A;}
+table.aff-planif-tbl td input:focus{background:#FFF7DD;outline:1px solid #C9A227;}
+.aff-planif-auto{color:#12A783;font-style:italic;}
+.aff-planif-header{background:#fff;border:1px solid #D8D2C2;border-radius:8px;padding:12px 14px;margin-bottom:10px;}
+.aff-planif-header .memp{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#1B2A4A;text-align:center;margin-bottom:4px;}
+.aff-planif-fields{display:flex;gap:12px;flex-wrap:wrap;margin-top:8px;}
+.aff-planif-field{flex:1;min-width:130px;}
+.aff-planif-field label{font-size:9px;color:#726F63;text-transform:uppercase;letter-spacing:.04em;display:block;margin-bottom:2px;}
+.aff-planif-field input{width:100%;border:none;border-bottom:1px solid #D8D2C2;font-size:11px;background:transparent;padding:3px 0;}
+.lock-toggle-wrap{position:relative;display:inline-block;width:46px;height:26px;}
+.lock-toggle-wrap input{opacity:0;width:0;height:0;position:absolute;}
+.lock-toggle-slider{position:absolute;cursor:pointer;inset:0;background:#ccc;border-radius:26px;transition:.3s;}
+.lock-toggle-slider:before{content:"";position:absolute;width:20px;height:20px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.3s;}
+.lock-toggle-wrap input:checked + .lock-toggle-slider{background:var(--sidebar-4);}
+.lock-toggle-wrap input:checked + .lock-toggle-slider:before{transform:translateX(20px);}
+@media print{
+  #sidebar, nav#tabs, .btn-primary, #toast-container{display:none !important;}
+}
+</style>
+</head>
+<body>
+
+<div id="lock-screen">
+  <div id="lock-box">
+    <img id="lock-logo" src="" alt="Logo" />
+    <h1>Mon École by C-AREZ</h1>
+    <p id="lock-tagline">Plateforme de rentrée scolaire</p>
+    <input id="code-input" type="password" inputmode="numeric" placeholder="Code d'accès" autofocus />
+    <p id="code-error"></p>
+    <button id="unlock-btn">🔑 Déverrouiller</button>
+    <p id="default-code-hint">Code par défaut : 1234</p>
+  </div>
+</div>
+
+<div id="photo-modal-overlay"><img id="photo-modal-img" src="" /></div>
+<div id="toast-container"></div>
+
+<div id="app">
+  <aside id="sidebar">
+    <div class="id-block">
+      <div class="id-row">
+        <div class="id-img-wrap">
+          <img id="brand-logo" src="" alt="Logo plateforme" />
+          <label class="id-edit-btn" for="brand-logo-file">✏️</label>
+        </div>
+        <div class="id-text"><div class="title">Mon École</div><div class="sub">by C-AREZ</div></div>
+      </div>
+      <input type="file" id="brand-logo-file" accept="image/*" style="position:absolute;width:1px;height:1px;opacity:0;" />
+    </div>
+
+    <div class="id-block">
+      <div class="id-row">
+        <div class="id-img-wrap">
+          <img id="designer-photo" src="" alt="Concepteur" />
+          <label class="id-edit-btn" for="designer-photo-file">✏️</label>
+        </div>
+        <div class="id-text">
+          <div class="title">C-AREZ</div>
+          <div class="sub">Caliel-Ali Rodolphe Éric ZANNOU</div>
+        </div>
+      </div>
+      <input type="file" id="designer-photo-file" accept="image/*" style="position:absolute;width:1px;height:1px;opacity:0;" />
+    </div>
+
+    <div class="id-block">
+      <div class="id-row">
+        <div class="id-img-wrap">
+          <img id="school-logo" src="" alt="Logo école" />
+          <label class="id-edit-btn" for="school-logo-file">✏️</label>
+        </div>
+        <div class="id-text" style="flex:1">
+          <input id="school-name-input" placeholder="Nom de l'école" />
+        </div>
+      </div>
+      <input type="file" id="school-logo-file" accept="image/*" style="position:absolute;width:1px;height:1px;opacity:0;" />
+    </div>
+
+    <div class="id-block">
+      <label style="font-size:11px;opacity:.85;display:block;margin-bottom:4px;">Année scolaire</label>
+      <input id="annee-scolaire-input" placeholder="ex : 2026 – 2027" style="width:100%;" />
+    </div>
+
+    <nav id="tabs">
+      <button class="tab-btn" data-tab="dossier">📁 Dossier des élèves</button>
+      <button class="tab-btn" data-tab="maclasse">🏫 Ma classe</button>
+      <button class="tab-btn" data-tab="registre">🗓️ Registre d'appel</button>
+      <button class="tab-btn" data-tab="affichage">📋 Tableau d'affichage</button>
+      <button class="tab-btn" data-tab="carte">🪪 Carte scolaire</button>
+      <button class="tab-btn" data-tab="cachet">🔖 Cachets</button>
+      <button class="tab-btn" data-tab="securite">🔒 Verrouillage</button>
+    </nav>
+
+    <div id="sidebar-bottom">
+      <button id="save-now-btn">💾 Enregistrer</button>
+      <button class="link-btn" id="toggle-settings">⚙️ Code d'accès</button>
+      <div id="settings-panel">
+        <input id="cur-code" type="password" placeholder="Code actuel" />
+        <input id="new-code" type="password" placeholder="Nouveau code" />
+        <input id="confirm-code" type="password" placeholder="Confirmer" />
+        <p id="settings-msg"></p>
+        <button id="settings-save">✓ Enregistrer</button>
+        <button id="settings-cancel" type="button">Annuler</button>
+      </div>
+      <button class="link-btn" id="toggle-dark">🌙 Mode sombre</button>
+      <button class="link-btn" id="export-btn">📤 Sauvegarder (fichier)</button>
+      <label class="link-btn" for="import-file" style="cursor:pointer">📂 Charger un fichier</label>
+      <input type="file" id="import-file" accept="application/json" style="position:absolute;width:1px;height:1px;opacity:0;" />
+    </div>
+  </aside>
+
+  <main id="main">
+    <div id="content">
+
+      <!-- DOSSIER DES ÉLÈVES -->
+      <section class="panel active" id="panel-dossier">
+        <div class="section-header">
+          <div><p class="eyebrow" style="color:#4C7EFF">Inscriptions</p><h2>Dossier des élèves</h2></div>
+        </div>
+
+        <form class="card" id="dossier-form">
+          <div class="field-grid">
+            <div class="field"><label>Nom</label><input id="f-nom" required /></div>
+            <div class="field"><label>Prénom</label><input id="f-prenom" required /></div>
+            <div class="field"><label>Âge</label><input id="f-age" type="number" min="2" max="20" required /></div>
+            <div class="field"><label>Sexe</label>
+              <div class="sexe-toggle"><button type="button" id="sexe-f" class="active-f">Fille</button><button type="button" id="sexe-m">Garçon</button></div>
+            </div>
+            <div class="field"><label>Statut</label>
+              <div class="statut-toggle"><button type="button" id="statut-ancien" class="active-ancien">Ancien</button><button type="button" id="statut-nouveau">Nouveau</button></div>
+            </div>
+            <div class="field" id="ancien-classe-field"><label>Classe</label>
+              <select id="f-classe-ancien">
+                <option>CI</option><option>CP</option><option>CE1</option><option>CE2</option><option>CM1</option><option>CM2</option>
+              </select>
+            </div>
+            <div class="field"><label>Contacts parents</label><input id="f-contacts-parents" placeholder="Téléphone / nom" required /></div>
+          </div>
+
+          <div id="nouveau-fields">
+            <p style="font-size:12px;color:var(--muted);margin-bottom:12px;">Un nouvel élève passe en classe supérieure si sa moyenne annuelle est ≥ 10/20 (bulletin à l'appui) ; sinon il reste dans sa classe antérieure.</p>
+            <div class="field-grid">
+              <div class="field"><label>Classe antérieure</label>
+                <select id="f-classe-anterieure">
+                  <option value="Aucune">Aucune (1ʳᵉ scolarisation)</option>
+                  <option>CI</option><option>CP</option><option>CE1</option><option>CE2</option><option>CM1</option><option>CM2</option>
+                </select>
+              </div>
+              <div class="field"><label>École de provenance</label><input id="f-ecole-provenance" /></div>
+              <div class="field"><label>Moyenne annuelle (/20)</label><input id="f-moyenne" type="number" min="0" max="20" step="0.01" /></div>
+              <div class="field"><label>Bulletin (image, obligatoire)</label><input id="f-bulletin" type="file" accept="image/*" /></div>
+              <div class="field"><label>Contacts ancienne école</label><input id="f-contacts-ecole" /></div>
+            </div>
+          </div>
+
+          <div style="margin-top:18px;"><button type="submit" class="btn-primary">➕ Inscrire l'élève</button></div>
+        </form>
+
+        <div class="card" style="padding:0;overflow-x:auto;">
+          <table>
+            <thead><tr>
+              <th>Date</th><th>Nom &amp; Prénom</th><th>Sexe</th><th>Âge</th><th>Statut</th><th>Classe</th><th>Bulletin</th><th></th>
+            </tr></thead>
+            <tbody id="dossier-body"></tbody>
+          </table>
+          <p class="empty-msg" id="dossier-empty" style="display:none;padding:16px;">Aucun élève inscrit pour l'instant.</p>
+        </div>
+      </section>
+
+      <!-- MA CLASSE -->
+      <section class="panel" id="panel-maclasse">
+        <div class="section-header">
+          <div><p class="eyebrow" style="color:#12A783">Répartition automatique</p><h2>Ma classe</h2></div>
+        </div>
+        <p style="font-size:13px;color:var(--muted);margin-bottom:20px;max-width:700px;">
+          Classement automatique à partir du Dossier des élèves : les anciens gardent la classe indiquée à l'inscription ;
+          les nouveaux passent en classe supérieure si leur moyenne annuelle est ≥ 10/20, sinon ils restent dans leur classe antérieure.
+        </p>
+        <div id="maclasse-container"></div>
+      </section>
+
+      <!-- REGISTRE D'APPEL -->
+      <section class="panel" id="panel-registre">
+        <div class="section-header">
+          <div><p class="eyebrow" style="color:#FF5C93">Suivi mensuel</p><h2>Registre d'appel</h2></div>
+        </div>
+
+        <div class="card">
+          <div class="field-grid">
+            <div class="field"><label>Classe</label>
+              <select id="reg-classe-select">
+                <option>CI</option><option>CP</option><option>CE1</option><option>CE2</option><option>CM1</option><option>CM2</option>
+              </select>
+            </div>
+            <div class="field"><label>Nom de l'enseignant(e)</label>
+              <input id="reg-maitre-input" placeholder="Nom et prénoms" />
+            </div>
+          </div>
+        </div>
+
+        <div class="reg-subtabs">
+          <button type="button" class="reg-subtab-btn active" data-regtab="eleves">1 · Élèves</button>
+          <button type="button" class="reg-subtab-btn" data-regtab="mois">2 · Arrêter le mois</button>
+          <button type="button" class="reg-subtab-btn" data-regtab="evals">3 · Évaluations &amp; Statistiques</button>
+          <button type="button" class="reg-subtab-btn" data-regtab="recap">4 · Récapitulatif annuel</button>
+        </div>
+
+        <!-- 1. ELEVES -->
+        <div class="reg-subpanel active" id="regpanel-eleves">
+          <div class="card">
+            <p style="font-size:12.5px;color:var(--muted);margin-bottom:14px;">Les élèves de cette classe proviennent automatiquement du <strong>Dossier des élèves</strong>. Complétez ici les informations propres au registre (matricule, parent, observations…).</p>
+            <div class="reg-scroll">
+              <table class="reg-table" id="reg-table-eleves">
+                <thead>
+                  <tr>
+                    <th rowspan="2">N°</th><th rowspan="2">Nom &amp; Prénoms</th><th rowspan="2">Âge</th>
+                    <th colspan="2">Scolarité</th>
+                    <th rowspan="2">Nom &amp; prénoms parent</th><th rowspan="2">Profession</th>
+                    <th rowspan="2">Domicile / Adresse / Tél / BP</th><th rowspan="2">Observations</th>
+                  </tr>
+                  <tr><th>N° matricule</th><th>Dans le cours</th></tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+            <div id="reg-eleves-empty" class="reg-empty" style="display:none;">Aucun élève dans cette classe. Inscrivez des élèves dans l'onglet "Dossier des élèves".</div>
+          </div>
+        </div>
+
+        <!-- 2. ARRETER LE MOIS -->
+        <div class="reg-subpanel" id="regpanel-mois">
+          <div class="card">
+            <h2 style="font-size:16px;margin-bottom:4px;">Nombre de demi-jours de classe — Arrêter le mois</h2>
+            <p style="font-size:12.5px;color:var(--muted);margin-bottom:14px;">Chaque jour ouvré affiche deux cases : <b>M</b> (matin) et <b>S</b> (soir). Cliquez pour marquer une absence. Le mercredi n'a qu'une case. Cliquez sur l'en-tête d'un jour pour le marquer férié.</p>
+
+            <div class="reg-arrete-bar">
+              <label>Arrêté le
+                <input id="reg-arrete-date" type="date" />
+              </label>
+              <span id="reg-arrete-warn" class="reg-arrete-warn"></span>
+            </div>
+
+            <div class="field-grid" style="margin-bottom:14px;">
+              <div class="field"><label>Mois</label><select id="reg-mois-select"></select></div>
+              <div class="field"><label>Année civile du mois choisi</label><input id="reg-annee-input" type="number" placeholder="2025" /></div>
+            </div>
+            <div style="display:flex;gap:10px;margin-bottom:10px;flex-wrap:wrap;">
+              <button type="button" class="btn-primary" id="reg-btn-grille">Générer la grille</button>
+              <button type="button" class="btn-primary" id="reg-btn-save-mois" style="background:var(--sidebar-2);color:#221D3B;box-shadow:none;">Enregistrer ce mois</button>
+              <button type="button" class="btn-primary" id="reg-btn-print" style="background:none;color:var(--ink);border:1px solid var(--line);box-shadow:none;" onclick="window.print()">Imprimer</button>
+            </div>
+            <div class="reg-info">💡 <b>"Générer la grille"</b> crée automatiquement les colonnes des jours ouvrés (L à V) du mois choisi, avec les mercredis à une seule case. Cliquez sur un en-tête de jour pour l'exclure comme férié.</div>
+
+            <div class="reg-effectif-row" id="reg-effectif-mois"></div>
+
+            <div class="reg-scroll">
+              <table class="reg-table" id="reg-table-mois"><thead></thead><tbody></tbody></table>
+            </div>
+            <div id="reg-mois-empty" class="reg-empty" style="display:none;">Ajoutez des élèves dans le Dossier, puis générez la grille.</div>
+
+            <div class="reg-formula" id="reg-formula-box"></div>
+            <div class="reg-info">ℹ️ Un enfant absent sans motif pendant 6 mois consécutifs doit être déclaré <b>abandon</b> (à reporter dans ses observations).</div>
+
+            <div class="reg-certif">« Je certifie exactes les informations ci-dessus »</div>
+            <div class="reg-sign-row">
+              <div class="reg-sign-box">
+                <h4>Le Maître / La Maîtresse</h4>
+                <canvas class="reg-sigpad" id="reg-sig-mois" width="320" height="110"></canvas>
+                <div><button type="button" class="reg-subtab-btn" style="border:1px solid var(--line);border-radius:6px;padding:4px 10px;" id="reg-clear-sig-mois">Effacer</button></div>
+                <input class="reg-name-input" id="reg-name-mois" placeholder="Nom et prénoms" />
+              </div>
+              <div class="reg-sign-box">
+                <h4>La Directrice / Le Directeur</h4>
+                <div id="reg-cachet-slot-mois" class="reg-cachet-slot"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. EVALUATIONS -->
+        <div class="reg-subpanel" id="regpanel-evals">
+          <div class="card">
+            <h2 style="font-size:16px;margin-bottom:4px;">Évaluation Certificative Mensuelle</h2>
+            <p style="font-size:12.5px;color:var(--muted);margin-bottom:14px;">CM = Compétence Minimale, CP = Compétence de Perfectionnement (bonus si le seuil de maîtrise minimale est atteint), T = Total.</p>
+            <div class="field-grid" style="margin-bottom:10px;">
+              <div class="field"><label>Évaluation N°</label><input id="reg-eval-numero" placeholder="ex : 1" /></div>
+              <div class="field"><label>Mois d'</label><select id="reg-eval-mois-select"></select></div>
+              <div class="field"><label>Et APE N°</label><input id="reg-eval-ape" placeholder="ex : 1" /></div>
+              <div class="field"><label>Seuil maîtrise min. (CM /20)</label><input id="reg-seuil-cm" type="number" step="0.5" value="10" /></div>
+              <div class="field"><label>Seuil de réussite fixé</label><input id="reg-seuil-reussite" value="6/9" /></div>
+            </div>
+            <div style="display:flex;gap:10px;margin-bottom:14px;">
+              <button type="button" class="btn-primary" id="reg-btn-gen-eval">Générer le tableau</button>
+              <button type="button" class="btn-primary" id="reg-btn-save-eval" style="background:var(--sidebar-2);color:#221D3B;box-shadow:none;">Enregistrer l'évaluation</button>
+            </div>
+            <div class="reg-scroll">
+              <table class="reg-table" id="reg-table-eval"><thead></thead><tbody></tbody></table>
+            </div>
+            <div id="reg-eval-empty" class="reg-empty" style="display:none;">Ajoutez des élèves dans le Dossier, puis générez le tableau.</div>
+          </div>
+
+          <div class="card">
+            <h2 style="font-size:16px;margin-bottom:4px;">Statistiques</h2>
+            <p style="font-size:12.5px;color:var(--muted);margin-bottom:14px;">Colonne Filles en rose, Garçons en bleu.</p>
+            <div class="reg-scroll">
+              <table class="reg-table" id="reg-table-stats">
+                <thead><tr><th>Indicateur</th><th class="reg-stat-th-g">Garçons</th><th class="reg-stat-th-f">Filles</th><th>Total</th></tr></thead>
+                <tbody></tbody>
+              </table>
+            </div>
+            <div class="reg-certif">« Je certifie exactes les informations ci-dessus »</div>
+            <div class="reg-sign-row">
+              <div class="reg-sign-box">
+                <h4>Le Maître</h4>
+                <canvas class="reg-sigpad" id="reg-sig-eval" width="320" height="110"></canvas>
+                <div><button type="button" class="reg-subtab-btn" style="border:1px solid var(--line);border-radius:6px;padding:4px 10px;" id="reg-clear-sig-eval">Effacer</button></div>
+                <input class="reg-name-input" id="reg-name-eval" placeholder="Nom et prénoms" />
+              </div>
+              <div class="reg-sign-box">
+                <h4>La Directrice / Le Directeur</h4>
+                <div id="reg-cachet-slot-eval" class="reg-cachet-slot"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4. RECAP -->
+        <div class="reg-subpanel" id="regpanel-recap">
+          <div class="card">
+            <h2 style="font-size:16px;margin-bottom:4px;">Tableau de Relevés Mensuels pour l'Année Scolaire</h2>
+            <p style="font-size:12.5px;color:var(--muted);margin-bottom:14px;">Se remplit automatiquement depuis "Arrêter le mois", ou peut être saisi manuellement.</p>
+            <div class="reg-info">💡 Ce tableau regroupe, mois par mois (Septembre à Juillet), le résumé des présences de toute l'année : nombre de demi-jours de classe, présences possibles/effectives, absences et leur pourcentage, et le nombre d'élèves ayant beaucoup manqué. Cliquez sur <b>"↻ Importer"</b> pour récupérer automatiquement, pour chaque mois déjà enregistré dans l'onglet "Arrêter le mois", ses totaux dans la ligne correspondante — sans ressaisir les chiffres. Vous pouvez aussi corriger une ligne à la main si besoin.</div>
+            <div style="display:flex;gap:10px;margin:14px 0;">
+              <button type="button" class="btn-primary" id="reg-btn-import-recap" style="background:none;color:var(--ink);border:1px solid var(--line);box-shadow:none;">↻ Importer</button>
+              <button type="button" class="btn-primary" id="reg-btn-save-recap" style="background:var(--sidebar-2);color:#221D3B;box-shadow:none;">Enregistrer</button>
+            </div>
+            <div class="reg-scroll">
+              <table class="reg-table" id="reg-table-recap">
+                <thead><tr>
+                  <th>Mois</th><th>Demi-jours de classe</th><th>Prés. possibles</th><th>Absences du mois</th>
+                  <th>Prés. effectives</th><th>% prés. effectives</th><th>N'ont jamais/≤4 manqué</th>
+                  <th>Ont manqué &gt;4</th><th>Abs. imputables col. préc.</th><th>Observations</th>
+                </tr></thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TABLEAU D'AFFICHAGE -->
+      <section class="panel" id="panel-affichage">
+        <div class="section-header">
+          <div><p class="eyebrow" style="color:#12A783">Classe</p><h2>Tableau d'affichage</h2></div>
+          <button class="btn-primary" onclick="window.print()" style="align-self:center;background:none;color:var(--ink);border:1px solid var(--line);box-shadow:none;font-size:12px;">🖨️ Imprimer tout le tableau</button>
+        </div>
+
+        <!-- Sub-tabs -->
+        <div class="reg-subtabs" id="aff-subtabs">
+          <button class="reg-subtab-btn active" data-afftab="identite">1·Identité</button>
+          <button class="reg-subtab-btn" data-afftab="emploi">2·Emploi du temps</button>
+          <button class="reg-subtab-btn" data-afftab="conseil">3·Conseil de classe</button>
+          <button class="reg-subtab-btn" data-afftab="eleves">4·Liste des élèves</button>
+          <button class="reg-subtab-btn" data-afftab="reglement">5·Règlement intérieur</button>
+          <button class="reg-subtab-btn" data-afftab="courbes">6·Courbes</button>
+          <button class="reg-subtab-btn" data-afftab="poesies">7·Poésies</button>
+          <button class="reg-subtab-btn" data-afftab="chants">8·Chants</button>
+          <button class="reg-subtab-btn" data-afftab="contes">9·Contes</button>
+          <button class="reg-subtab-btn" data-afftab="honneur">10·Tableau d'honneur</button>
+          <button class="reg-subtab-btn" data-afftab="calendrier">11·Calendrier</button>
+          <button class="reg-subtab-btn" data-afftab="sante">12·Comité santé</button>
+          <button class="reg-subtab-btn" data-afftab="mercuriale">13·Mercuriale</button>
+          <button class="reg-subtab-btn" data-afftab="planification">14·Planification</button>
+        </div>
+
+        <!-- 1. IDENTITE -->
+        <div class="reg-subpanel active" id="affpanel-identite">
+          <div class="card">
+            <h2 style="font-size:15px;margin-bottom:12px;">Identité de l'enseignant(e)</h2>
+            <div class="field-grid">
+              <div class="field"><label>Nom</label><input id="aff-nom" placeholder="Nom"/></div>
+              <div class="field"><label>Prénom</label><input id="aff-prenom" placeholder="Prénom"/></div>
+              <div class="field"><label>Grade</label><input id="aff-grade" placeholder="ex : Adjoint"/></div>
+              <div class="field"><label>Ancienneté</label><input id="aff-anciennete" placeholder="ex : 11 ans"/></div>
+              <div class="field"><label>École</label><input id="aff-ecole" placeholder="Nom de l'école"/></div>
+              <div class="field"><label>Classe</label><input id="aff-classe-id" placeholder="ex : CM2"/></div>
+            </div>
+            <div style="margin-top:14px;">
+              <label style="font-size:12px;color:var(--muted);font-weight:600;display:block;margin-bottom:6px;">Photo de l'enseignant(e)</label>
+              <label style="display:flex;align-items:center;gap:10px;cursor:pointer;background:#F6F4FC;border:2px dashed var(--line);border-radius:10px;padding:12px;width:fit-content;">
+                <span style="font-size:24px;">📷</span>
+                <span style="font-size:12px;color:var(--muted);">Choisir une photo</span>
+                <input type="file" id="aff-photo-upload" accept="image/*" style="display:none;">
+              </label>
+              <div id="aff-photo-preview" style="margin-top:10px;"></div>
+            </div>
+            <div style="margin-top:14px;display:flex;gap:10px;">
+              <button class="btn-primary" id="aff-save-identite">💾 Enregistrer</button>
+            </div>
+            <div id="aff-sign-identite"></div>
+          </div>
+        </div>
+
+        <!-- 2. EMPLOI DU TEMPS -->
+        <div class="reg-subpanel" id="affpanel-emploi">
+          <div class="card">
+            <h2 style="font-size:15px;margin-bottom:12px;">Emploi du temps</h2>
+            <p style="font-size:12px;color:var(--muted);margin-bottom:12px;">Importez une image ou un PDF de votre emploi du temps.</p>
+            <label style="display:flex;align-items:center;gap:10px;cursor:pointer;background:#F6F4FC;border:2px dashed var(--line);border-radius:10px;padding:16px;width:fit-content;">
+              <span style="font-size:28px;">📄</span>
+              <span style="font-size:12px;color:var(--muted);">Choisir une image ou PDF</span>
+              <input type="file" id="aff-emploi-upload" accept="image/*,application/pdf" style="display:none;">
+            </label>
+            <div id="aff-emploi-preview" style="margin-top:12px;"></div>
+            <div style="margin-top:10px;"><button class="btn-primary" id="aff-save-emploi">💾 Enregistrer</button></div>
+            <div id="aff-sign-emploi"></div>
+          </div>
+        </div>
+
+        <!-- 3. CONSEIL DE CLASSE -->
+        <div class="reg-subpanel" id="affpanel-conseil">
+          <div class="card">
+            <h2 style="font-size:15px;margin-bottom:12px;">Conseil de classe — Responsables</h2>
+            <p style="font-size:12px;color:var(--muted);margin-bottom:12px;">Liste des élèves responsables de la classe.</p>
+            <div id="aff-conseil-list">
+              <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+                <span style="font-weight:700;color:var(--muted);min-width:24px;">1.</span>
+                <input class="aff-conseil-item" placeholder="Nom et prénom de l'élève" style="flex:1;padding:10px;border:1px solid var(--line);border-radius:8px;font-size:13px;">
+              </div>
+              <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+                <span style="font-weight:700;color:var(--muted);min-width:24px;">2.</span>
+                <input class="aff-conseil-item" placeholder="Nom et prénom de l'élève" style="flex:1;padding:10px;border:1px solid var(--line);border-radius:8px;font-size:13px;">
+              </div>
+              <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+                <span style="font-weight:700;color:var(--muted);min-width:24px;">3.</span>
+                <input class="aff-conseil-item" placeholder="Nom et prénom de l'élève" style="flex:1;padding:10px;border:1px solid var(--line);border-radius:8px;font-size:13px;">
+              </div>
+            </div>
+            <button class="btn-primary" style="margin-top:6px;background:none;color:var(--ink);border:1px solid var(--line);box-shadow:none;font-size:12px;" id="aff-conseil-add">+ Ajouter un responsable</button>
+            <div style="margin-top:10px;"><button class="btn-primary" id="aff-save-conseil">💾 Enregistrer</button></div>
+            <div id="aff-sign-conseil"></div>
+          </div>
+        </div>
+
+        <!-- 4. LISTE DES ELEVES -->
+        <div class="reg-subpanel" id="affpanel-eleves">
+          <div class="card">
+            <h2 style="font-size:15px;margin-bottom:6px;">Liste des élèves de la classe</h2>
+            <div style="display:flex;gap:10px;margin-bottom:12px;align-items:center;flex-wrap:wrap;">
+              <div class="field" style="margin:0;">
+                <label>Classe à afficher</label>
+                <select id="aff-eleves-classe">
+                  <option>CI</option><option>CP</option><option>CE1</option><option>CE2</option><option>CM1</option><option>CM2</option>
+                </select>
+              </div>
+              <button class="btn-primary" id="aff-btn-gen-eleves" style="align-self:flex-end;">Générer la liste</button>
+            </div>
+            <div class="reg-scroll">
+              <table class="reg-table" id="aff-table-eleves">
+                <thead><tr><th>N°</th><th>Nom &amp; Prénoms</th><th>Sexe</th><th>Âge</th><th>Classe</th></tr></thead>
+                <tbody></tbody>
+              </table>
+            </div>
+            <div id="aff-sign-eleves" style="margin-top:14px;"></div>
+          </div>
+        </div>
+
+        <!-- 5. REGLEMENT INTERIEUR -->
+        <div class="reg-subpanel" id="affpanel-reglement">
+          <div class="card">
+            <h2 style="font-size:15px;margin-bottom:12px;">Règlement intérieur</h2>
+            <p style="font-size:12px;color:var(--muted);margin-bottom:12px;">Importez une image ou un PDF du règlement intérieur officiel.</p>
+            <label style="display:flex;align-items:center;gap:10px;cursor:pointer;background:#F6F4FC;border:2px dashed var(--line);border-radius:10px;padding:16px;width:fit-content;">
+              <span style="font-size:28px;">📜</span>
+              <span style="font-size:12px;color:var(--muted);">Choisir une image ou PDF</span>
+              <input type="file" id="aff-reglement-upload" accept="image/*,application/pdf" style="display:none;">
+            </label>
+            <div id="aff-reglement-preview" style="margin-top:12px;"></div>
+            <div style="margin-top:10px;"><button class="btn-primary" id="aff-save-reglement">💾 Enregistrer</button></div>
+            <div id="aff-sign-reglement"></div>
+          </div>
+        </div>
+
+        <!-- 6. COURBES -->
+        <div class="reg-subpanel" id="affpanel-courbes">
+          <div class="card">
+            <h2 style="font-size:15px;margin-bottom:6px;">Courbes — Âges &amp; Scolarité</h2>
+            <p style="font-size:12px;color:var(--muted);margin-bottom:12px;">
+              Les données viennent automatiquement des élèves inscrits dans la classe choisie. 
+              Un exemple fictif est affiché ci-dessous — cliquez <b>Réinitialiser</b> pour l'effacer et utiliser vos vraies données.
+            </p>
+            <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;align-items:flex-end;">
+              <div class="field" style="margin:0;">
+                <label>Classe</label>
+                <select id="aff-courbe-classe">
+                  <option>CI</option><option>CP</option><option>CE1</option><option>CE2</option><option>CM1</option><option>CM2</option>
+                </select>
+              </div>
+              <button class="btn-primary" id="aff-btn-gen-courbes">📊 Générer les courbes</button>
+              <button class="btn-primary" id="aff-btn-demo-courbes" style="background:none;color:var(--sidebar-2);border:1px solid var(--sidebar-2);box-shadow:none;">👁 Voir un exemple</button>
+              <button class="btn-primary" id="aff-btn-reset-courbes" style="background:none;color:var(--absent);border:1px solid var(--absent);box-shadow:none;">✕ Réinitialiser</button>
+              <button class="btn-primary" onclick="window.print()" style="background:none;color:var(--ink);border:1px solid var(--line);box-shadow:none;">🖨️ Imprimer</button>
+            </div>
+            <!-- Age chart -->
+            <div style="margin-bottom:20px;">
+              <h3 style="font-size:13px;margin:0 0 6px;color:var(--ink);">📊 Diagramme en bâtons — Courbe des âges</h3>
+              <p id="aff-ages-caption" style="font-size:11px;color:var(--muted);margin:0 0 8px;"></p>
+              <canvas id="aff-chart-ages" style="width:100%;background:#fff;border-radius:8px;border:1px solid var(--line);"></canvas>
+            </div>
+            <!-- Scolarité chart -->
+            <div>
+              <h3 style="font-size:13px;margin:0 0 6px;color:var(--ink);">📊 Diagramme en bâtons — Courbe de scolarité</h3>
+              <p id="aff-scol-caption" style="font-size:11px;color:var(--muted);margin:0 0 8px;"></p>
+              <canvas id="aff-chart-scolarite" style="width:100%;background:#fff;border-radius:8px;border:1px solid var(--line);"></canvas>
+            </div>
+            <div id="aff-sign-courbes" style="margin-top:14px;"></div>
+          </div>
+        </div>
+
+        <!-- 7. POESIES -->
+        <div class="reg-subpanel" id="affpanel-poesies">
+          <div class="card">
+            <h2 style="font-size:15px;margin-bottom:12px;">Poésies</h2>
+            <div style="margin-bottom:12px;">
+              <label style="font-size:12px;font-weight:700;color:var(--muted);">1.</label>
+              <input class="aff-poesie-titre" placeholder="Titre de la poésie" style="width:100%;padding:10px;border:1px solid var(--line);border-radius:8px;font-size:13px;margin-top:4px;">
+            </div>
+            <div style="margin-bottom:12px;">
+              <label style="font-size:12px;font-weight:700;color:var(--muted);">2.</label>
+              <input class="aff-poesie-titre" placeholder="Titre de la poésie" style="width:100%;padding:10px;border:1px solid var(--line);border-radius:8px;font-size:13px;margin-top:4px;">
+            </div>
+            <div style="margin-bottom:12px;">
+              <label style="font-size:12px;font-weight:700;color:var(--muted);">3.</label>
+              <input class="aff-poesie-titre" placeholder="Titre de la poésie" style="width:100%;padding:10px;border:1px solid var(--line);border-radius:8px;font-size:13px;margin-top:4px;">
+            </div>
+            <button class="btn-primary" id="aff-save-poesies">💾 Enregistrer</button>
+            <div id="aff-sign-poesies"></div>
+          </div>
+        </div>
+
+        <!-- 8. CHANTS -->
+        <div class="reg-subpanel" id="affpanel-chants">
+          <div class="card">
+            <h2 style="font-size:15px;margin-bottom:12px;">Chants</h2>
+            <div style="margin-bottom:12px;">
+              <label style="font-size:12px;font-weight:700;color:var(--muted);">1.</label>
+              <input class="aff-chant-titre" placeholder="Titre du chant" style="width:100%;padding:10px;border:1px solid var(--line);border-radius:8px;font-size:13px;margin-top:4px;">
+            </div>
+            <div style="margin-bottom:12px;">
+              <label style="font-size:12px;font-weight:700;color:var(--muted);">2.</label>
+              <input class="aff-chant-titre" placeholder="Titre du chant" style="width:100%;padding:10px;border:1px solid var(--line);border-radius:8px;font-size:13px;margin-top:4px;">
+            </div>
+            <div style="margin-bottom:12px;">
+              <label style="font-size:12px;font-weight:700;color:var(--muted);">3.</label>
+              <input class="aff-chant-titre" placeholder="Titre du chant" style="width:100%;padding:10px;border:1px solid var(--line);border-radius:8px;font-size:13px;margin-top:4px;">
+            </div>
+            <button class="btn-primary" id="aff-save-chants">💾 Enregistrer</button>
+            <div id="aff-sign-chants"></div>
+          </div>
+        </div>
+
+        <!-- 9. CONTES -->
+        <div class="reg-subpanel" id="affpanel-contes">
+          <div class="card">
+            <h2 style="font-size:15px;margin-bottom:12px;">Contes</h2>
+            <div style="margin-bottom:12px;">
+              <label style="font-size:12px;font-weight:700;color:var(--muted);">1.</label>
+              <input class="aff-conte-titre" placeholder="Titre du conte" style="width:100%;padding:10px;border:1px solid var(--line);border-radius:8px;font-size:13px;margin-top:4px;">
+            </div>
+            <div style="margin-bottom:12px;">
+              <label style="font-size:12px;font-weight:700;color:var(--muted);">2.</label>
+              <input class="aff-conte-titre" placeholder="Titre du conte" style="width:100%;padding:10px;border:1px solid var(--line);border-radius:8px;font-size:13px;margin-top:4px;">
+            </div>
+            <div style="margin-bottom:12px;">
+              <label style="font-size:12px;font-weight:700;color:var(--muted);">3.</label>
+              <input class="aff-conte-titre" placeholder="Titre du conte" style="width:100%;padding:10px;border:1px solid var(--line);border-radius:8px;font-size:13px;margin-top:4px;">
+            </div>
+            <button class="btn-primary" id="aff-save-contes">💾 Enregistrer</button>
+            <div id="aff-sign-contes"></div>
+          </div>
+        </div>
+
+        <!-- 10. TABLEAU D'HONNEUR -->
+        <div class="reg-subpanel" id="affpanel-honneur">
+          <div class="card">
+            <h2 style="font-size:15px;margin-bottom:6px;">Tableau d'honneur</h2>
+            <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;align-items:flex-end;">
+              <div class="field" style="margin:0;"><label>Classe</label>
+                <select id="aff-honneur-classe"><option>CI</option><option>CP</option><option>CE1</option><option>CE2</option><option>CM1</option><option>CM2</option></select>
+              </div>
+              <div class="field" style="margin:0;"><label>Évaluation (mois)</label>
+                <select id="aff-honneur-mois"></select>
+              </div>
+              <button class="btn-primary" id="aff-btn-gen-honneur">🏆 Générer le podium</button>
+            </div>
+            <div id="aff-honneur-podium" style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:14px;"></div>
+            <button class="btn-primary" id="aff-btn-print-attestation" style="background:var(--sidebar-2);color:#221D3B;box-shadow:none;display:none;">🖨️ Imprimer les attestations</button>
+            <div id="aff-sign-honneur" style="margin-top:14px;"></div>
+          </div>
+        </div>
+
+        <!-- 11. CALENDRIER SCOLAIRE -->
+        <div class="reg-subpanel" id="affpanel-calendrier">
+          <div class="card">
+            <h2 style="font-size:15px;margin-bottom:12px;">Calendrier scolaire</h2>
+            <label style="display:flex;align-items:center;gap:10px;cursor:pointer;background:#F6F4FC;border:2px dashed var(--line);border-radius:10px;padding:16px;width:fit-content;">
+              <span style="font-size:28px;">📅</span>
+              <span style="font-size:12px;color:var(--muted);">Choisir une image ou PDF</span>
+              <input type="file" id="aff-calendrier-upload" accept="image/*,application/pdf" style="display:none;">
+            </label>
+            <div id="aff-calendrier-preview" style="margin-top:12px;"></div>
+            <div style="margin-top:10px;"><button class="btn-primary" id="aff-save-calendrier">💾 Enregistrer</button></div>
+            <div id="aff-sign-calendrier"></div>
+          </div>
+        </div>
+
+        <!-- 12. COMITE SANTE -->
+        <div class="reg-subpanel" id="affpanel-sante">
+          <div class="card">
+            <h2 style="font-size:15px;margin-bottom:12px;">Comité santé</h2>
+            <p style="font-size:12px;color:var(--muted);margin-bottom:12px;">3 élèves désignés responsables de la santé dans la classe.</p>
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+              <span style="font-weight:700;color:var(--muted);min-width:24px;">1.</span>
+              <input class="aff-sante-item" placeholder="Nom et prénom de l'élève" style="flex:1;padding:10px;border:1px solid var(--line);border-radius:8px;font-size:13px;">
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+              <span style="font-weight:700;color:var(--muted);min-width:24px;">2.</span>
+              <input class="aff-sante-item" placeholder="Nom et prénom de l'élève" style="flex:1;padding:10px;border:1px solid var(--line);border-radius:8px;font-size:13px;">
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+              <span style="font-weight:700;color:var(--muted);min-width:24px;">3.</span>
+              <input class="aff-sante-item" placeholder="Nom et prénom de l'élève" style="flex:1;padding:10px;border:1px solid var(--line);border-radius:8px;font-size:13px;">
+            </div>
+            <div style="margin-top:10px;"><button class="btn-primary" id="aff-save-sante">💾 Enregistrer</button></div>
+            <div id="aff-sign-sante"></div>
+          </div>
+        </div>
+
+        <!-- 13. MERCURIALE -->
+        <div class="reg-subpanel" id="affpanel-mercuriale">
+          <div class="card">
+            <h2 style="font-size:15px;margin-bottom:12px;">Mercuriale</h2>
+            <p style="font-size:12px;color:var(--muted);margin-bottom:12px;">Produits vivriers et fournitures scolaires avec leurs prix.</p>
+            <div class="reg-scroll">
+              <table class="reg-table" id="aff-table-mercuriale">
+                <thead><tr><th>N°</th><th>Produit</th><th>Unité</th><th>Prix unitaire (FCFA)</th><th></th></tr></thead>
+                <tbody></tbody>
+              </table>
+            </div>
+            <button class="btn-primary" id="aff-btn-add-mercu" style="margin-top:10px;background:none;color:var(--ink);border:1px solid var(--line);box-shadow:none;font-size:12px;">+ Ajouter un produit</button>
+            <div style="margin-top:10px;"><button class="btn-primary" id="aff-save-mercuriale">💾 Enregistrer</button></div>
+            <div id="aff-sign-mercuriale"></div>
+          </div>
+        </div>
+
+        <!-- 14. PLANIFICATION MENSUELLE -->
+        <div class="reg-subpanel" id="affpanel-planification">
+          <div class="card">
+            <h2 style="font-size:15px;margin-bottom:6px;">Planification Mensuelle</h2>
+            <p style="font-size:12px;color:var(--muted);margin-bottom:12px;">Fiche mensuelle avec les cours à dérouler par champ de formation. Les activités extraites du programme officiel s'affichent en vert — modifiables.</p>
+            <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;align-items:flex-end;">
+              <div class="field" style="margin:0;"><label>Classe</label>
+                <select id="aff-planif-classe"><option>CE1</option><option>CE2</option><option>CM1</option><option>CM2</option></select>
+              </div>
+              <div class="field" style="margin:0;"><label>Mois</label>
+                <select id="aff-planif-mois">
+                  <option>Septembre</option><option>Octobre</option><option>Novembre</option><option>Décembre</option>
+                  <option>Janvier</option><option>Février</option><option>Mars</option><option>Avril</option><option>Mai</option><option>Juin</option>
+                </select>
+              </div>
+              <button class="btn-primary" id="aff-btn-gen-planif">📋 Générer la fiche</button>
+              <button class="btn-primary" onclick="window.print()" style="background:none;color:var(--ink);border:1px solid var(--line);box-shadow:none;">🖨️ Imprimer</button>
+            </div>
+            <div id="aff-planif-output">
+              <div class="reg-empty">Choisissez une classe et un mois, puis cliquez Générer.</div>
+            </div>
+            <div id="aff-sign-planif"></div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- CARTE SCOLAIRE — panneau indépendant -->
+      <section class="panel" id="panel-carte">
+        <div class="section-header">
+          <div><p class="eyebrow" style="color:#EFC94C">Documents officiels</p><h2>Carte d'Identité Scolaire</h2></div>
+          <button class="btn-primary" onclick="window.print()" style="align-self:center;background:none;color:var(--ink);border:1px solid var(--line);box-shadow:none;font-size:12px;">🖨️ Imprimer</button>
+        </div>
+        <div class="card">
+          <p style="font-size:12px;color:var(--muted);margin-bottom:14px;">Les élèves sont importés automatiquement depuis le Dossier. Ajoutez une photo pour chaque élève, puis générez et imprimez.</p>
+          <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;align-items:flex-end;">
+            <div class="field" style="margin:0;"><label>Classe</label>
+              <select id="aff-carte-classe"><option>CI</option><option>CP</option><option>CE1</option><option>CE2</option><option>CM1</option><option>CM2</option></select>
+            </div>
+            <button class="btn-primary" id="aff-btn-gen-cartes">🪪 Générer les cartes</button>
+          </div>
+          <div id="aff-carte-photos" style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:14px;"></div>
+          <div id="aff-carte-output"></div>
+        </div>
+      </section>
+
+      <!-- CACHET DE L'ÉCOLE -->
+      <section class="panel" id="panel-cachet">
+        <div class="section-header">
+          <div><p class="eyebrow" style="color:#4C7EFF">Signatures officielles</p><h2>Cachets de l'école</h2></div>
+        </div>
+
+        <!-- Couleur commune -->
+        <div class="card" style="padding:14px 18px;">
+          <p style="font-size:12.5px;color:var(--muted);margin-bottom:12px;">Choisissez la couleur d'encre appliquée à tous les cachets au moment de la génération. Les noms d'école et de classe viennent de la barre latérale.</p>
+          <div style="display:flex;align-items:center;gap:18px;flex-wrap:wrap;">
+            <label style="font-size:12px;font-weight:600;color:var(--muted);">Couleur d'encre :</label>
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;">
+              <input type="radio" name="cachet-couleur" id="coul-rouge" value="#C0392B" checked>
+              <span style="color:#C0392B;font-weight:700;">● Rouge</span>
+            </label>
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;">
+              <input type="radio" name="cachet-couleur" id="coul-bleu" value="#2154C7">
+              <span style="color:#2154C7;font-weight:700;">● Bleu</span>
+            </label>
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;">
+              <input type="radio" name="cachet-couleur" id="coul-noir" value="#1A1A1A">
+              <span style="color:#1A1A1A;font-weight:700;">● Noir</span>
+            </label>
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;">
+              <input type="radio" name="cachet-couleur" id="coul-custom" value="custom">
+              <span style="color:var(--muted);">Autre :</span>
+              <input type="color" id="coul-custom-picker" value="#8B0000" style="width:32px;height:26px;border:none;cursor:pointer;background:none;padding:0;">
+            </label>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-top:0;" class="cachet-grid">
+
+          <!-- 1. Cachet officiel rond de l'école — upload image -->
+          <div class="card">
+            <h3 style="font-size:13px;margin-bottom:6px;color:var(--ink);">🔵 Cachet officiel de l'école<br>
+              <span style="font-size:11px;font-weight:400;color:var(--muted);">Déposez votre cachet déjà fait (image)</span>
+            </h3>
+            <p style="font-size:11.5px;color:var(--muted);margin-bottom:12px;">
+              Chargez une photo ou image de votre cachet. Il s'affichera automatiquement dans les emplacements signature de "Arrêter le mois" et "Évaluations".
+            </p>
+            <!-- drop zone -->
+            <label id="reg-cachet-dropzone" style="
+              display:flex;flex-direction:column;align-items:center;justify-content:center;
+              border:2px dashed var(--line);border-radius:10px;padding:20px 14px;cursor:pointer;
+              background:#F6F4FC;min-height:110px;gap:8px;transition:border-color .2s;">
+              <span style="font-size:28px;">📷</span>
+              <span style="font-size:12px;color:var(--muted);text-align:center;">Appuyer pour choisir une image<br><em>(.jpg, .png, .gif)</em></span>
+              <input id="reg-cachet-upload" type="file" accept="image/*" style="display:none;">
+            </label>
+            <button type="button" class="btn-primary" id="reg-btn-cachet-ecole"
+              style="font-size:12px;padding:7px 12px;margin-top:10px;">✓ Valider et apposer le cachet</button>
+            <div id="reg-cachet-preview-ecole" style="margin-top:12px;min-height:50px;"></div>
+          </div>
+
+          <!-- 2. Cachet rectangulaire direction -->
+          <div class="card">
+            <h3 style="font-size:13px;margin-bottom:10px;color:var(--ink);">🟦 Cachet — Direction<br><span style="font-size:11px;font-weight:400;color:var(--muted);">Forme rectangle • nom uniquement</span></h3>
+            <div class="field" style="margin-bottom:8px;">
+              <label>Police d'écriture</label>
+              <select id="reg-font-dir"></select>
+            </div>
+            <div class="field" style="margin-bottom:8px;">
+              <label>Nom (saut de ligne possible avec Entrée)</label>
+              <textarea id="reg-cachet-dir-nom" rows="2" style="width:100%;padding:6px 8px;border:1px solid var(--line);border-radius:6px;font-size:13px;resize:none;" placeholder="Nom et prénoms"></textarea>
+            </div>
+            <button type="button" class="btn-primary" id="reg-btn-cachet-dir" style="font-size:12px;padding:7px 12px;">Générer</button>
+            <div id="reg-cachet-preview-dir" style="margin-top:12px;min-height:50px;"></div>
+          </div>
+
+          <!-- 3. Cachet rectangulaire maître -->
+          <div class="card">
+            <h3 style="font-size:13px;margin-bottom:10px;color:var(--ink);">🟩 Cachet — Maître / Maîtresse<br><span style="font-size:11px;font-weight:400;color:var(--muted);">Forme rectangle • nom uniquement</span></h3>
+            <div class="field" style="margin-bottom:8px;">
+              <label>Police d'écriture</label>
+              <select id="reg-font-maitre"></select>
+            </div>
+            <div class="field" style="margin-bottom:8px;">
+              <label>Nom (saut de ligne possible avec Entrée)</label>
+              <textarea id="reg-maitre-cachet-input" rows="2" style="width:100%;padding:6px 8px;border:1px solid var(--line);border-radius:6px;font-size:13px;resize:none;" placeholder="Nom et prénoms"></textarea>
+            </div>
+            <button type="button" class="btn-primary" id="reg-btn-cachet-maitre" style="font-size:12px;padding:7px 12px;">Générer</button>
+            <div id="reg-cachet-preview-maitre" style="margin-top:12px;min-height:50px;"></div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- SECURITE -->
+      <section class="panel" id="panel-securite">
+        <div class="section-header">
+          <div><p class="eyebrow" style="color:#EFC94C">Protection</p><h2>Verrouillage &amp; Fond d'écran</h2></div>
+        </div>
+
+        <!-- Verrouillage -->
+        <div class="card" style="max-width:480px;">
+          <p style="font-size:12.5px;color:var(--muted);margin-bottom:16px;">Activez ou désactivez le verrouillage par code d'accès selon vos besoins.</p>
+          <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px;">
+            <span style="font-size:13px;font-weight:600;">Verrouillage :</span>
+            <label class="lock-toggle-wrap">
+              <input type="checkbox" id="lock-enabled-toggle">
+              <span class="lock-toggle-slider"></span>
+            </label>
+            <span id="lock-status-label" style="font-size:12px;color:var(--muted);">Chargement…</span>
+          </div>
+          <div id="lock-code-section">
+            <p style="font-size:12px;font-weight:600;margin-bottom:8px;color:var(--ink);">Changer le code d'accès</p>
+            <div class="field" style="margin-bottom:8px;"><label>Code actuel</label><input id="sec-cur-code" type="password" placeholder="Code actuel" /></div>
+            <div class="field" style="margin-bottom:8px;"><label>Nouveau code (4 car. min.)</label><input id="sec-new-code" type="password" placeholder="Nouveau code" /></div>
+            <div class="field" style="margin-bottom:8px;"><label>Confirmer</label><input id="sec-confirm-code" type="password" placeholder="Confirmer" /></div>
+            <p id="sec-settings-msg" style="font-size:12px;min-height:16px;margin-bottom:8px;"></p>
+            <button type="button" class="btn-primary" id="sec-settings-save">✓ Enregistrer le nouveau code</button>
+          </div>
+          <div style="margin-top:20px;">
+            <button type="button" class="btn-primary" id="lock-now-btn" style="background:none;color:var(--ink);border:1px solid var(--line);box-shadow:none;">🔒 Verrouiller maintenant</button>
+          </div>
+        </div>
+
+        <!-- Fond d'écran — protégé par code -->
+        <div class="card" style="max-width:480px;margin-top:0;">
+          <h3 style="font-size:14px;margin-bottom:6px;color:var(--ink);">🖼️ Fond d'écran de l'application</h3>
+          <p style="font-size:12px;color:var(--muted);margin-bottom:14px;">
+            Seul toi peux changer ce fond d'écran. Les autres utilisateurs le voient mais ne peuvent pas le modifier.
+          </p>
+
+          <!-- Vérification code avant accès -->
+          <div id="wp-locked" style="background:#F6F4FC;border-radius:10px;padding:16px;">
+            <p style="font-size:12.5px;color:var(--ink);margin-bottom:10px;font-weight:600;">🔑 Entrez votre code d'accès pour modifier le fond d'écran</p>
+            <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+              <input id="wp-code-input" type="password" placeholder="Votre code"
+                style="padding:8px 12px;border:1px solid var(--line);border-radius:8px;font-size:14px;flex:1;min-width:120px;">
+              <button type="button" class="btn-primary" id="wp-unlock-btn">Déverrouiller</button>
+            </div>
+            <p id="wp-code-error" style="font-size:12px;color:#D32F2F;margin-top:6px;min-height:16px;"></p>
+          </div>
+
+          <!-- Zone de modification (cachée par défaut) -->
+          <div id="wp-editor" style="display:none;margin-top:14px;">
+            <label id="wp-dropzone" style="
+              display:flex;flex-direction:column;align-items:center;justify-content:center;
+              border:2px dashed var(--line);border-radius:10px;padding:20px;cursor:pointer;
+              background:#F6F4FC;min-height:120px;gap:8px;margin-bottom:12px;">
+              <span style="font-size:32px;">🖼️</span>
+              <span style="font-size:12px;color:var(--muted);text-align:center;">Appuyer pour choisir ta photo<br><em>(.jpg, .png)</em></span>
+              <input id="wp-upload" type="file" accept="image/*" style="display:none;">
+            </label>
+            <div id="wp-preview" style="margin-bottom:12px;"></div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;">
+              <button type="button" class="btn-primary" id="wp-save-btn">✓ Appliquer le fond d'écran</button>
+              <button type="button" class="btn-primary" id="wp-remove-btn"
+                style="background:none;color:#D32F2F;border:1px solid #D32F2F;box-shadow:none;">✕ Supprimer le fond</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<script>
+/* ===================== Storage helpers ===================== */
+function load(key, fallback){
+  try{ const v = localStorage.getItem('monecole:'+key); return v===null ? fallback : JSON.parse(v); }
+  catch(e){ return fallback; }
+}
+function save(key, value){
+  try{ localStorage.setItem('monecole:'+key, JSON.stringify(value)); } catch(e){ console.error(e); }
+}
+function uid(){ return Math.random().toString(36).slice(2,10); }
+function escapeHtml(str){ const d=document.createElement('div'); d.textContent=str||''; return d.innerHTML; }
+function showToast(message, type){
+  const c = document.getElementById('toast-container');
+  const t = document.createElement('div');
+  t.className = 'toast' + (type?' '+type:'');
+  t.textContent = message;
+  c.appendChild(t);
+  requestAnimationFrame(()=>t.classList.add('show'));
+  setTimeout(()=>{ t.classList.remove('show'); setTimeout(()=>t.remove(),300); }, 2400);
+}
+
+const DEFAULT_CODE = "1234";
+const LEVELS = ["CI","CP","CE1","CE2","CM1","CM2"];
+const LEVEL_COLOR = { CI:'#4C7EFF', CP:'#FF5C93', CE1:'#EFC94C', CE2:'#12A783', CM1:'#4C7EFF', CM2:'#FF5C93' };
+const NEXT_CLASS = { CI:'CP', CP:'CE1', CE1:'CE2', CE2:'CM1', CM1:'CM2', CM2:'CM2' };
+const SEUIL_PASSAGE = 10;
+const PLACEHOLDER_IMG = "data:image/svg+xml;utf8," + encodeURIComponent(
+  '<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100" height="100" fill="%23ddd"/><text x="50" y="55" font-size="34" text-anchor="middle" fill="%23999">?</text></svg>'
+);
+
+let accessCode = load('accessCode', DEFAULT_CODE);
+let logoBrand = load('logoBrand', null);
+let designerPhoto = load('designerPhoto', null);
+let schoolLogo = load('schoolLogo', null);
+let schoolName = load('schoolName', '');
+let anneeScolaire = load('anneeScolaire', '2026 – 2027');
+let dossier = load('dossier', []);
+
+document.getElementById('lock-logo').src = logoBrand || PLACEHOLDER_IMG;
+
+/* ===================== Registre — constantes et variables (déclarées tôt pour éviter ReferenceError) ===================== */
+const REG_MOIS = ["Septembre","Octobre","Novembre","Décembre","Janvier","Février","Mars","Avril","Mai","Juin","Juillet"];
+const REG_MOIS_INDEX = {Septembre:8,Octobre:9,Novembre:10,Décembre:11,Janvier:0,Février:1,Mars:2,Avril:3,Mai:4,Juin:5,Juillet:6};
+const REG_WD_LETTER = {1:"L",2:"M",3:"M",4:"J",5:"V"};
+const REG_SUBJECTS = [
+  {key:"comm_orale", label:"Comm. Orale", cmcp:true},
+  {key:"prod_ecrit", label:"Production d'Écrit", cmcp:true},
+  {key:"lecture", label:"Lecture / Compréh. Écrit", cmcp:true},
+  {key:"dictee", label:"Dictée", cmcp:true},
+  {key:"anglais", label:"Anglais", cmcp:true},
+  {key:"maths", label:"Maths", cmcp:true},
+  {key:"entree6e", label:"Entrée en 6ème", cmcp:false},
+  {key:"sciences", label:"Éduc. Scientifique &amp; Techno.", cmcp:true},
+  {key:"sociale", label:"Éducation Sociale", cmcp:true},
+  {key:"art_plastique", label:"Éduc. Artistique (Art Plastique)", cmcp:true},
+  {key:"art_vivant", label:"Éduc. Artistique (Art Vivante)", cmcp:true},
+  {key:"eps", label:"Éduc. Physique &amp; Sportive", cmcp:true},
+];
+let regCachetEcole  = load('registre:cachet:ecole',  {svg:'', couleur:'#C0392B', directeur:''});
+let regCachetDir    = load('registre:cachet:dir',    {svg:'', couleur:'#C0392B', police:'Georgia, serif', nom:''});
+let regCachetMaitre = load('registre:cachet:maitre', {svg:'', couleur:'#C0392B', police:'Georgia, serif', nom:''});
+let regMoisData = {};
+let regEvalData = {};
+let regRecap = [];
+let regSigMoisReload = function(){};
+let regSigEvalReload = function(){};
+let affCartePhotos = load('aff:carte:photos', {});
+
+/* ===================== Lock screen ===================== */
+const codeInput = document.getElementById('code-input');
+const codeError = document.getElementById('code-error');
+
+// Skip lock if disabled
+(function(){
+  const lockEnabled = load('lockEnabled', true);
+  if(!lockEnabled){
+    document.getElementById('lock-screen').style.display = 'none';
+    document.getElementById('app').style.display = 'flex';
+    initApp();
+    return;
+  }
+})();
+
+function tryUnlock(){
+  const val = codeInput.value;
+  if (val.length === 0) return;
+  if (val.length === accessCode.length){
+    if (val === accessCode){
+      document.getElementById('lock-screen').style.display = 'none';
+      document.getElementById('app').style.display = 'flex';
+      initApp();
+    } else {
+      codeInput.classList.add('error');
+      codeError.textContent = 'Code incorrect, réessayez.';
+      setTimeout(()=>{ codeInput.value=''; }, 350);
+    }
+  } else { codeInput.classList.remove('error'); codeError.textContent=''; }
+}
+codeInput.addEventListener('input', tryUnlock);
+document.getElementById('unlock-btn').addEventListener('click', tryUnlock);
+
+/* ===================== Editable images ===================== */
+function setupEditableImage(imgId, fileId, storageKey, getter, setter){
+  const img = document.getElementById(imgId);
+  img.src = getter() || PLACEHOLDER_IMG;
+  img.addEventListener('click', ()=>{
+    if (getter()){
+      document.getElementById('photo-modal-img').src = getter();
+      document.getElementById('photo-modal-overlay').classList.add('show');
+    }
+  });
+  document.getElementById(fileId).addEventListener('change', e=>{
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      const image = new Image();
+      image.onload = () => {
+        const maxDim = 300;
+        let { width, height } = image;
+        if (width > height && width > maxDim){ height = Math.round(height*(maxDim/width)); width = maxDim; }
+        else if (height > maxDim){ width = Math.round(width*(maxDim/height)); height = maxDim; }
+        const canvas = document.createElement('canvas');
+        canvas.width = width; canvas.height = height;
+        canvas.getContext('2d').drawImage(image, 0, 0, width, height);
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.88);
+        setter(dataUrl);
+        save(storageKey, dataUrl);
+        img.src = dataUrl;
+        showToast('Photo mise à jour ✓', 'success');
+      };
+      image.src = reader.result;
+    };
+    reader.readAsDataURL(file);
+    e.target.value = '';
+  });
+}
+document.getElementById('photo-modal-overlay').addEventListener('click', ()=>{
+  document.getElementById('photo-modal-overlay').classList.remove('show');
+});
+
+/* ===================== Dossier des élèves ===================== */
+let currentSexe = 'F';
+let currentStatut = 'ancien';
+
+function classeFinale(rec){
+  if (rec.statut === 'ancien') return rec.classe;
+  if (!rec.classeAnterieure || rec.classeAnterieure === 'Aucune') return 'CI';
+  const passed = Number(rec.moyenne) >= SEUIL_PASSAGE;
+  return passed ? (NEXT_CLASS[rec.classeAnterieure] || rec.classeAnterieure) : rec.classeAnterieure;
+}
+
+function renderDossier(){
+  const body = document.getElementById('dossier-body');
+  const empty = document.getElementById('dossier-empty');
+  if (dossier.length === 0){
+    body.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+  body.innerHTML = dossier.slice().reverse().map(rec=>{
+    const d = new Date(rec.dateInscription);
+    const dateStr = d.toLocaleDateString('fr-FR');
+    const classe = classeFinale(rec);
+    const statutBadge = rec.statut==='ancien'
+      ? '<span class="badge ancien">Ancien</span>'
+      : `<span class="badge nouveau">Nouveau</span> ${rec.classeAnterieure && rec.classeAnterieure!=='Aucune' ? (Number(rec.moyenne)>=SEUIL_PASSAGE ? '<span class="badge promu">Promu</span>' : '<span class="badge redouble">Redouble</span>') : ''}`;
+    const bulletinCell = rec.bulletinImage ? `<img class="thumb" src="${rec.bulletinImage}" data-full="${rec.bulletinImage}" />` : '—';
+    return `<tr>
+      <td>${dateStr}</td>
+      <td>${escapeHtml(rec.nom)} ${escapeHtml(rec.prenom)}</td>
+      <td>${rec.sexe==='F'?'Fille':'Garçon'}</td>
+      <td>${rec.age}</td>
+      <td>${statutBadge}</td>
+      <td><strong>${classe}</strong></td>
+      <td>${bulletinCell}</td>
+      <td><button class="del-btn" data-id="${rec.id}">🗑️</button></td>
+    </tr>`;
+  }).join('');
+
+  body.querySelectorAll('.thumb').forEach(img=>{
+    img.addEventListener('click', ()=>{
+      document.getElementById('photo-modal-img').src = img.dataset.full;
+      document.getElementById('photo-modal-overlay').classList.add('show');
+    });
+  });
+  body.querySelectorAll('.del-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      dossier = dossier.filter(r=>r.id !== btn.dataset.id);
+      save('dossier', dossier);
+      renderDossier();
+      renderMaClasse();
+      if (typeof regRenderEleves === 'function'){ regRenderEleves(); regRenderMoisGrid(); regRenderEval(); regRenderStats(); }
+      showToast('Élève retiré', 'success');
+    });
+  });
+}
+
+document.getElementById('sexe-f').addEventListener('click', ()=>{
+  currentSexe='F'; document.getElementById('sexe-f').classList.add('active-f'); document.getElementById('sexe-m').classList.remove('active-m');
+});
+document.getElementById('sexe-m').addEventListener('click', ()=>{
+  currentSexe='M'; document.getElementById('sexe-m').classList.add('active-m'); document.getElementById('sexe-f').classList.remove('active-f');
+});
+document.getElementById('statut-ancien').addEventListener('click', ()=>{
+  currentStatut='ancien';
+  document.getElementById('statut-ancien').classList.add('active-ancien');
+  document.getElementById('statut-nouveau').classList.remove('active-nouveau');
+  document.getElementById('ancien-classe-field').style.display='block';
+  document.getElementById('nouveau-fields').style.display='none';
+});
+document.getElementById('statut-nouveau').addEventListener('click', ()=>{
+  currentStatut='nouveau';
+  document.getElementById('statut-nouveau').classList.add('active-nouveau');
+  document.getElementById('statut-ancien').classList.remove('active-ancien');
+  document.getElementById('ancien-classe-field').style.display='none';
+  document.getElementById('nouveau-fields').style.display='block';
+});
+
+document.getElementById('dossier-form').addEventListener('submit', e=>{
+  e.preventDefault();
+  const nom = document.getElementById('f-nom').value.trim();
+  const prenom = document.getElementById('f-prenom').value.trim();
+  const age = document.getElementById('f-age').value;
+  const contactsParents = document.getElementById('f-contacts-parents').value.trim();
+  if (!nom || !prenom || !age || !contactsParents){ showToast('Merci de remplir les champs obligatoires', 'error'); return; }
+
+  const rec = {
+    id: uid(), dateInscription: new Date().toISOString(),
+    nom, prenom, age: Number(age), sexe: currentSexe, statut: currentStatut,
+    contactsParents
+  };
+
+  if (currentStatut === 'ancien'){
+    rec.classe = document.getElementById('f-classe-ancien').value;
+    finishSubmit(rec);
+  } else {
+    rec.classeAnterieure = document.getElementById('f-classe-anterieure').value;
+    rec.ecoleProvenance = document.getElementById('f-ecole-provenance').value.trim();
+    rec.moyenne = document.getElementById('f-moyenne').value;
+    rec.contactsAncienneEcole = document.getElementById('f-contacts-ecole').value.trim();
+    const bulletinFile = document.getElementById('f-bulletin').files[0];
+    if (rec.classeAnterieure !== 'Aucune' && !bulletinFile){
+      showToast('Le bulletin (image) est obligatoire pour un nouvel élève', 'error');
+      return;
+    }
+    if (bulletinFile){
+      const reader = new FileReader();
+      reader.onload = () => {
+        const img = new Image();
+        img.onload = () => {
+          const maxDim = 500;
+          let { width, height } = img;
+          if (width > height && width > maxDim){ height = Math.round(height*(maxDim/width)); width = maxDim; }
+          else if (height > maxDim){ width = Math.round(width*(maxDim/height)); height = maxDim; }
+          const canvas = document.createElement('canvas');
+          canvas.width = width; canvas.height = height;
+          canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+          rec.bulletinImage = canvas.toDataURL('image/jpeg', 0.85);
+          finishSubmit(rec);
+        };
+        img.src = reader.result;
+      };
+      reader.readAsDataURL(bulletinFile);
+    } else {
+      finishSubmit(rec);
+    }
+  }
+});
+
+function finishSubmit(rec){
+  dossier.push(rec);
+  save('dossier', dossier);
+  document.getElementById('dossier-form').reset();
+  document.getElementById('sexe-f').click();
+  document.getElementById('statut-ancien').click();
+  renderDossier();
+  renderMaClasse();
+  if (typeof regRenderEleves === 'function'){ regRenderEleves(); regRenderMoisGrid(); regRenderEval(); regRenderStats(); }
+  showToast('Élève inscrit ✓', 'success');
+}
+
+/* ===================== Ma classe ===================== */
+function renderMaClasse(){
+  const container = document.getElementById('maclasse-container');
+  container.innerHTML = LEVELS.map(level=>{
+    const students = dossier.filter(r => classeFinale(r) === level);
+    const garcons = students.filter(s=>s.sexe==='M').length;
+    const filles = students.filter(s=>s.sexe==='F').length;
+    const rows = students.map((s,i)=>{
+      let scolCours = 'Ancien élève';
+      if (s.statut === 'nouveau'){
+        if (!s.classeAnterieure || s.classeAnterieure === 'Aucune') scolCours = '1ʳᵉ scolarisation';
+        else scolCours = Number(s.moyenne) >= SEUIL_PASSAGE ? 'Nouveau — promu' : 'Nouveau — redouble';
+      }
+      return `<tr>
+        <td>${i+1}</td>
+        <td>${escapeHtml(s.nom)} ${escapeHtml(s.prenom)}</td>
+        <td>${s.age}</td>
+        <td>${scolCours}</td>
+        <td><input class="scolarite-input" data-id="${s.id}" placeholder="ex : 3 ans" value="${escapeHtml(s.scolariteGenerale||'')}" /></td>
+      </tr>`;
+    }).join('');
+    return `<div class="level-card" style="border-top-color:${LEVEL_COLOR[level]}">
+      <div class="level-header">
+        <h3 style="color:${LEVEL_COLOR[level]}">${level}</h3>
+        <div class="level-stats"><span>${garcons} garçon${garcons>1?'s':''}</span><span>${filles} fille${filles>1?'s':''}</span><span>${students.length} total</span></div>
+      </div>
+      <div class="level-table-wrap">
+        <table>
+          <thead><tr><th>#</th><th>Nom &amp; Prénom</th><th>Âge</th><th>Scolarité dans le cours</th><th>Scolarité générale</th></tr></thead>
+          <tbody>${rows || `<tr><td colspan="5" class="empty-msg">Aucun élève classé en ${level}.</td></tr>`}</tbody>
+        </table>
+      </div>
+    </div>`;
+  }).join('');
+
+  container.querySelectorAll('.scolarite-input').forEach(inp=>{
+    inp.addEventListener('input', e=>{
+      const rec = dossier.find(r=>r.id===e.target.dataset.id);
+      if (rec){ rec.scolariteGenerale = e.target.value; save('dossier', dossier); }
+    });
+  });
+}
+
+/* ===================== Registre d'appel ===================== */
+
+
+function regClasse(){ return document.getElementById('reg-classe-select').value; }
+
+function regEleves(){
+  const cls = regClasse();
+  const extra = load('registre:extra:'+cls, {});
+  return dossier.filter(r=>classeFinale(r)===cls).map(r=>{
+    const ex = extra[r.id] || {};
+    return {
+      id:r.id, nom:r.nom, prenom:r.prenom, genre:r.sexe, age:r.age,
+      matricule: ex.matricule||'', dansCours: ex.dansCours||'',
+      parentNom: ex.parentNom!==undefined ? ex.parentNom : (r.contactsParents||''),
+      profession: ex.profession||'', domicile: ex.domicile||'', observations: ex.observations||''
+    };
+  });
+}
+function regSaveExtra(id, field, value){
+  const cls = regClasse();
+  const extra = load('registre:extra:'+cls, {});
+  if(!extra[id]) extra[id] = {};
+  extra[id][field] = value;
+  save('registre:extra:'+cls, extra);
+}
+
+/* ---- Cachet École (cercle, fidèle à la photo) ---- */
+function buildCachetEcoleSVG(nomEcole, directeur, couleur, devise, ville, pays, role){
+  const INK = couleur || '#2154C7';
+  const uid = 'ce' + Math.random().toString(36).slice(2,8);
+  const eNom    = escapeHtml((nomEcole || 'EPP GRÂCE DIVINE').toUpperCase());
+  const eDevise = escapeHtml((devise   || 'DISCIPLINE - TRAVAIL - SUCCÈS').toUpperCase());
+  const eRole   = escapeHtml((role     || 'LA DIRECTION').toUpperCase());
+  const eVille  = escapeHtml(ville  || '');
+  const ePays   = escapeHtml(pays   || '');
+  const eDir    = escapeHtml(directeur || '');
+
+  // SVG 400×400, centre 200,200
+  // Outer double ring: r=188 + r=178
+  // Inner ring: r=128
+  // Top arc for school name: large arc on r≈183 from about 220° to 320° (top half)
+  // Bottom arc for devise: large arc on r≈183, bottom half
+  // Stars at 180° left and 0° right (inside the band)
+
+  return `<svg viewBox="0 0 400 400" width="220" height="220" style="mix-blend-mode:multiply;">
+  <defs>
+    <!-- top arc: school name follows the outer ring, clockwise top -->
+    <path id="${uid}T" d="M 18,200 A 182,182 0 0 1 382,200" fill="none"/>
+    <!-- bottom arc: devise follows inner edge of band, bottom half counter-clockwise so text reads normally -->
+    <path id="${uid}B" d="M 32,215 A 168,168 0 0 0 368,215" fill="none"/>
+  </defs>
+
+  <!-- outer double ring -->
+  <circle cx="200" cy="200" r="192" fill="none" stroke="${INK}" stroke-width="2"/>
+  <circle cx="200" cy="200" r="182" fill="none" stroke="${INK}" stroke-width="5"/>
+  <!-- inner ring -->
+  <circle cx="200" cy="200" r="128" fill="none" stroke="${INK}" stroke-width="2.5"/>
+
+  <!-- ★ stars on left and right inside the band -->
+  <text x="19"  y="210" fill="${INK}" font-size="26" text-anchor="middle" font-family="serif">★</text>
+  <text x="381" y="210" fill="${INK}" font-size="26" text-anchor="middle" font-family="serif">★</text>
+
+  <!-- school name on top arc -->
+  <text font-size="21" font-weight="900" letter-spacing="3" fill="${INK}"
+        font-family="Arial Black, Arial, sans-serif">
+    <textPath href="#${uid}T" startOffset="50%" text-anchor="middle">${eNom}</textPath>
+  </text>
+
+  <!-- devise on bottom arc -->
+  <text font-size="15" font-weight="700" letter-spacing="2" fill="${INK}"
+        font-family="Arial, sans-serif" font-style="italic">
+    <textPath href="#${uid}B" startOffset="50%" text-anchor="middle">${eDevise}</textPath>
+  </text>
+
+  <!-- ===== DOVE LEFT (G) ===== silhouette style -->
+  <g transform="translate(108,100) scale(0.82)">
+    <!-- body -->
+    <ellipse cx="38" cy="50" rx="22" ry="13" fill="none" stroke="${INK}" stroke-width="2.2"/>
+    <!-- head -->
+    <circle cx="60" cy="40" r="10" fill="none" stroke="${INK}" stroke-width="2.2"/>
+    <!-- beak -->
+    <path d="M69,39 L77,37 L69,43 Z" fill="${INK}"/>
+    <!-- eye -->
+    <circle cx="63" cy="38" r="2" fill="${INK}"/>
+    <!-- left wing up -->
+    <path d="M30,48 Q10,20 0,10 Q20,30 28,45" fill="none" stroke="${INK}" stroke-width="2.2" stroke-linejoin="round"/>
+    <!-- right wing low feathers -->
+    <path d="M46,55 Q55,75 40,85 Q30,75 36,60" fill="none" stroke="${INK}" stroke-width="2" stroke-linejoin="round"/>
+    <path d="M40,60 Q50,80 35,90 M34,62 Q44,82 29,92" fill="none" stroke="${INK}" stroke-width="1.5"/>
+    <!-- tail -->
+    <path d="M16,55 Q5,62 0,72 M16,57 Q6,65 2,76" fill="none" stroke="${INK}" stroke-width="2"/>
+    <!-- G circle on body -->
+    <circle cx="38" cy="50" r="11" fill="white" stroke="${INK}" stroke-width="2"/>
+    <text x="38" y="55" fill="${INK}" font-size="13" font-weight="900" text-anchor="middle"
+          font-family="Arial Black, Arial, sans-serif">G</text>
+  </g>
+
+  <!-- ===== DOVE RIGHT (D) — mirrored ===== -->
+  <g transform="translate(292,100) scale(-0.82,0.82)">
+    <ellipse cx="38" cy="50" rx="22" ry="13" fill="none" stroke="${INK}" stroke-width="2.2"/>
+    <circle cx="60" cy="40" r="10" fill="none" stroke="${INK}" stroke-width="2.2"/>
+    <path d="M69,39 L77,37 L69,43 Z" fill="${INK}"/>
+    <circle cx="63" cy="38" r="2" fill="${INK}"/>
+    <path d="M30,48 Q10,20 0,10 Q20,30 28,45" fill="none" stroke="${INK}" stroke-width="2.2" stroke-linejoin="round"/>
+    <path d="M46,55 Q55,75 40,85 Q30,75 36,60" fill="none" stroke="${INK}" stroke-width="2" stroke-linejoin="round"/>
+    <path d="M40,60 Q50,80 35,90 M34,62 Q44,82 29,92" fill="none" stroke="${INK}" stroke-width="1.5"/>
+    <path d="M16,55 Q5,62 0,72 M16,57 Q6,65 2,76" fill="none" stroke="${INK}" stroke-width="2"/>
+    <circle cx="38" cy="50" r="11" fill="white" stroke="${INK}" stroke-width="2"/>
+    <text x="38" y="55" fill="${INK}" font-size="13" font-weight="900" text-anchor="middle"
+          font-family="Arial Black, Arial, sans-serif">D</text>
+  </g>
+
+  <!-- LA DIRECTION -->
+  <text x="200" y="218" fill="${INK}" font-size="18" font-weight="900"
+    text-anchor="middle" font-family="Arial Black, Arial, sans-serif" letter-spacing="2">${eRole}</text>
+
+  <!-- separator line with dot -->
+  <line x1="100" y1="228" x2="300" y2="228" stroke="${INK}" stroke-width="1.5"/>
+  <circle cx="200" cy="228" r="3" fill="${INK}"/>
+
+  <!-- ville -->
+  <text x="200" y="252" fill="${INK}" font-size="13" font-weight="600"
+    text-anchor="middle" font-family="Georgia, serif">${eVille}</text>
+
+  <!-- pays -->
+  <text x="200" y="270" fill="${INK}" font-size="13" font-weight="600"
+    text-anchor="middle" font-family="Georgia, serif">${ePays}</text>
+
+  <!-- directeur (optionnel) -->
+  ${eDir ? `<text x="200" y="288" fill="${INK}" font-size="11" font-weight="700"
+    text-anchor="middle" font-family="Georgia, serif" opacity=".85">${eDir}</text>` : ''}
+</svg>`;
+}
+
+/* ---- Cachet rectangulaire (Directeur ou Maître) ---- */
+function buildCachetRectSVG(nom, role, couleur, police){
+  const INK = couleur || '#C0392B';
+  const FONT = police || 'Georgia, serif';
+  // Split name on newlines
+  const lines = (nom||'').split('\n').filter(l=>l.trim()!=='');
+  if(!lines.length) lines.push('—');
+  const lineH = 20;
+  const nameBlockH = lines.length * lineH;
+  // Layout: signature zone at top, then name below
+  const H = 20 + 22 + 10 + nameBlockH + 12; // top padding + sig zone + gap + name + bottom
+  const sigY = 20 + 16; // baseline of signature line
+  const nameStartY = sigY + 18;
+  const sigLineHTML = `
+    <line x1="14" y1="${sigY+4}" x2="246" y2="${sigY+4}" stroke="${INK}" stroke-width="0.8" stroke-dasharray="3,3"/>
+    <text x="130" y="${sigY+14}" fill="${INK}" font-size="8" text-anchor="middle"
+      font-family="Arial, sans-serif" letter-spacing=".5" opacity=".7">Signature</text>`;
+  const nameLines = lines.map((l,i)=>
+    `<text x="130" y="${nameStartY + i*lineH + 14}" fill="${INK}" font-size="14" font-weight="700"
+      text-anchor="middle" font-family="${FONT}">${escapeHtml(l)}</text>`
+  ).join('');
+  return `<svg viewBox="0 0 260 ${H}" width="240" height="${H}" style="mix-blend-mode:multiply;">
+    <!-- outer border -->
+    <rect x="2" y="2" width="256" height="${H-4}" rx="4" ry="4"
+      fill="none" stroke="${INK}" stroke-width="2"/>
+    <!-- header band -->
+    <rect x="2" y="2" width="256" height="24" rx="4" ry="4" fill="${INK}"/>
+    <rect x="2" y="14" width="256" height="12" fill="${INK}"/>
+    <text x="130" y="18" fill="#fff" font-size="10.5" font-weight="700"
+      text-anchor="middle" font-family="Arial, sans-serif" letter-spacing="1">${escapeHtml(role.toUpperCase())}</text>
+    <!-- signature zone -->
+    ${sigLineHTML}
+    <!-- name lines -->
+    ${nameLines}
+  </svg>`;
+}
+
+function regGetCouleur(){
+  const radios = document.querySelectorAll('input[name="cachet-couleur"]');
+  for(const r of radios){ if(r.checked){ return r.value === 'custom' ? document.getElementById('coul-custom-picker').value : r.value; } }
+  return '#C0392B';
+}
+
+function regRenderAllCachets(){
+  const previewDir    = document.getElementById('reg-cachet-preview-dir');
+  const previewMaitre = document.getElementById('reg-cachet-preview-maitre');
+  const previewEcole  = document.getElementById('reg-cachet-preview-ecole');
+  const slotMois      = document.getElementById('reg-cachet-slot-mois');
+  const slotEval      = document.getElementById('reg-cachet-slot-eval');
+
+  // Helper: build display HTML for école cachet (image or SVG)
+  function ecoleHTML(maxW){
+    if(regCachetEcole.dataUrl){
+      return `<img src="${regCachetEcole.dataUrl}" style="max-width:${maxW}px;max-height:${maxW}px;mix-blend-mode:multiply;opacity:.88;transform:rotate(-3deg);">`;
+    }
+    return '';
+  }
+  function dirHTML()    { return regCachetDir.svg    ? `<div style="transform:rotate(-2deg);">${regCachetDir.svg}</div>`    : ''; }
+  function maitreHTML() { return regCachetMaitre.svg ? `<div style="transform:rotate(-2deg);">${regCachetMaitre.svg}</div>` : ''; }
+
+  if(previewDir)    previewDir.innerHTML    = dirHTML();
+  if(previewMaitre) previewMaitre.innerHTML = maitreHTML();
+
+  // Slots (mois + eval): école cachet + direction rect
+  function buildSlot(){
+    const ec = ecoleHTML(130);
+    const dc = dirHTML();
+    if(ec || dc){
+      return `<div style="display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap;">${ec}${dc}</div>`;
+    }
+    return `<div class="reg-cachet-missing">Ajoutez votre cachet dans l'onglet "🔖 Cachets".</div>`;
+  }
+  if(slotMois) slotMois.innerHTML = buildSlot();
+  if(slotEval) slotEval.innerHTML = buildSlot();
+}
+
+function regSetupSigPad(canvas, storageKeyFn, clearBtn){
+  const ctx = canvas.getContext('2d');
+  ctx.lineWidth = 2; ctx.lineCap = 'round'; ctx.strokeStyle = '#221D3B';
+  let drawing = false;
+  function pos(e){ const r=canvas.getBoundingClientRect(); const t=e.touches?e.touches[0]:e; return {x:(t.clientX-r.left)*(canvas.width/r.width), y:(t.clientY-r.top)*(canvas.height/r.height)}; }
+  function start(e){ drawing=true; const p=pos(e); ctx.beginPath(); ctx.moveTo(p.x,p.y); e.preventDefault(); }
+  function move(e){ if(!drawing) return; const p=pos(e); ctx.lineTo(p.x,p.y); ctx.stroke(); e.preventDefault(); }
+  function end(){ if(!drawing) return; drawing=false; localStorage.setItem('monecole:'+storageKeyFn(), canvas.toDataURL()); }
+  canvas.addEventListener('mousedown',start); canvas.addEventListener('mousemove',move); window.addEventListener('mouseup',end);
+  canvas.addEventListener('touchstart',start,{passive:false}); canvas.addEventListener('touchmove',move,{passive:false}); canvas.addEventListener('touchend',end);
+  clearBtn.addEventListener('click', ()=>{ ctx.clearRect(0,0,canvas.width,canvas.height); localStorage.removeItem('monecole:'+storageKeyFn()); });
+  return function reload(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    const saved = localStorage.getItem('monecole:'+storageKeyFn());
+    if(saved){ const img=new Image(); img.onload=()=>ctx.drawImage(img,0,0); img.src=saved; }
+  };
+}
+
+/* ---- 1. Élèves ---- */
+function regRenderEleves(){
+  const tbody = document.querySelector('#reg-table-eleves tbody');
+  const els = regEleves();
+  document.getElementById('reg-eleves-empty').style.display = els.length ? 'none' : 'block';
+  tbody.innerHTML = els.map((el,idx)=>{
+    const cls = el.genre==='F' ? 'reg-fille' : (el.genre==='M' ? 'reg-garcon' : '');
+    return `<tr class="${cls}">
+      <td>${idx+1}</td>
+      <td class="reg-nomcell" style="text-align:left;">${escapeHtml(el.nom)} ${escapeHtml(el.prenom)}</td>
+      <td>${el.age||''}</td>
+      <td><input data-id="${el.id}" data-f="matricule" value="${escapeHtml(el.matricule)}" placeholder="—"></td>
+      <td><input data-id="${el.id}" data-f="dansCours" value="${escapeHtml(el.dansCours)}" style="width:60px;"></td>
+      <td><input data-id="${el.id}" data-f="parentNom" value="${escapeHtml(el.parentNom)}" placeholder="Nom & prénoms"></td>
+      <td><input data-id="${el.id}" data-f="profession" value="${escapeHtml(el.profession)}" placeholder="—"></td>
+      <td><input data-id="${el.id}" data-f="domicile" value="${escapeHtml(el.domicile)}" placeholder="Domicile / Tél / BP"></td>
+      <td><input data-id="${el.id}" data-f="observations" value="${escapeHtml(el.observations)}" placeholder="—"></td>
+    </tr>`;
+  }).join('');
+  tbody.querySelectorAll('input').forEach(inp=>{
+    inp.addEventListener('input', ()=>{ regSaveExtra(inp.dataset.id, inp.dataset.f, inp.value); });
+  });
+}
+
+/* ---- 2. Arrêter le mois ---- */
+function regMoisKey(){ return 'registre:appel:'+regClasse()+':'+document.getElementById('reg-mois-select').value; }
+function regDaysInMonth(year, monthIndex){ return new Date(year, monthIndex+1, 0).getDate(); }
+
+function regLoadMois(){
+  regMoisData = load(regMoisKey(), null);
+  if(!regMoisData){ regMoisData = {annee:'', days:[], absences:{}, motifs:{}, arreteDate:'', nameMaitre:''}; }
+  document.getElementById('reg-annee-input').value = regMoisData.annee || '';
+  document.getElementById('reg-arrete-date').value = regMoisData.arreteDate || '';
+  document.getElementById('reg-name-mois').value = regMoisData.nameMaitre || '';
+  regRenderMoisGrid();
+  regSigMoisReload();
+}
+function regRenderMoisGrid(){
+  const thead = document.querySelector('#reg-table-mois thead');
+  const tbody = document.querySelector('#reg-table-mois tbody');
+  thead.innerHTML=''; tbody.innerHTML='';
+  const els = regEleves();
+  document.getElementById('reg-mois-empty').style.display = els.length ? 'none' : 'block';
+  const days = regMoisData.days || [];
+
+  let h1 = `<th rowspan="2">N°</th><th rowspan="2">Nom &amp; Prénoms</th>`;
+  days.forEach(d=>{
+    h1 += `<th colspan="${d.mercredi?1:2}" class="reg-day-head ${d.ferie?'ferie':''}" data-day="${d.day}">${d.day}<span class="wd">${REG_WD_LETTER[d.wd]}${d.ferie?' · férié':''}</span></th>`;
+  });
+  h1 += `<th rowspan="2">Prés. Poss.</th><th rowspan="2">Abs.</th><th rowspan="2">Prés. Eff.</th><th rowspan="2">Motif(s)</th>`;
+  const trh1=document.createElement('tr'); trh1.innerHTML=h1;
+  let h2=''; days.forEach(d=>{ h2 += d.mercredi ? `<th>M</th>` : `<th>M</th><th>S</th>`; });
+  const trh2=document.createElement('tr'); trh2.innerHTML=h2;
+  thead.appendChild(trh1); thead.appendChild(trh2);
+
+  let effG=0, effF=0, sumAbs=0, jamaisManque=0, plusDe4=0;
+  const possibleSlotsPerDay = days.reduce((acc,d)=> acc + (d.ferie?0:(d.mercredi?1:2)), 0);
+
+  els.forEach(el=>{
+    if(el.genre==='M') effG++; if(el.genre==='F') effF++;
+    const abs = regMoisData.absences[el.id] || {};
+    let totalAbs=0, cells='';
+    days.forEach(d=>{
+      const slots = d.mercredi ? ['M'] : ['M','S'];
+      slots.forEach(slot=>{
+        const key = d.day+'_'+slot;
+        const isAbs = !!abs[key];
+        const disabled = d.ferie;
+        if(isAbs && !disabled) totalAbs++;
+        cells += `<td class="reg-slot ${disabled?'disabled':(isAbs?'absent':'present')}" data-eid="${el.id}" data-key="${key}" data-ferie="${disabled?1:0}">${disabled?'':(isAbs?(slot==='M'?'−':'|'):'')}</td>`;
+      });
+    });
+    sumAbs += totalAbs;
+    if(totalAbs<=4) jamaisManque++; else plusDe4++;
+    const cls = el.genre==='F' ? 'reg-fille' : (el.genre==='M' ? 'reg-garcon' : '');
+    const tr=document.createElement('tr'); tr.className=cls;
+    tr.innerHTML = `<td>${el.dansCours||''}</td>
+      <td class="reg-nomcell" style="text-align:left;">${escapeHtml(el.nom)} ${escapeHtml(el.prenom)}</td>
+      ${cells}
+      <td>${possibleSlotsPerDay}</td><td>${totalAbs}</td><td>${possibleSlotsPerDay-totalAbs}</td>
+      <td><input data-motif="${el.id}" value="${escapeHtml(regMoisData.motifs[el.id]||'')}" placeholder="motif" style="width:90px;"></td>`;
+    tbody.appendChild(tr);
+  });
+
+  document.getElementById('reg-effectif-mois').innerHTML = `
+    <div class="reg-pill garcon">${effG}<span>Garçons</span></div>
+    <div class="reg-pill fille">${effF}<span>Filles</span></div>
+    <div class="reg-pill">${els.length}<span>Total</span></div>`;
+
+  const totalPossible = possibleSlotsPerDay * els.length;
+  const totalEffective = totalPossible - sumAbs;
+  const pctPres = totalPossible ? (totalEffective/totalPossible*100).toFixed(2) : '0.00';
+  const pctAbs = totalPossible ? (sumAbs/totalPossible*100).toFixed(2) : '0.00';
+  document.getElementById('reg-formula-box').innerHTML = `
+    <div><b>Nombre de demi-jours de classe du mois</b> (jours fériés exclus) = <b>${possibleSlotsPerDay}</b></div>
+    <div><b>Total des présences possibles</b> = ${els.length} élève(s) × ${possibleSlotsPerDay} demi-jour(s) = <b>${totalPossible}</b></div>
+    <div><b>Total des absences du mois</b> = <b>${sumAbs}</b></div>
+    <div><b>Total des présences effectives</b> = ${totalPossible} − ${sumAbs} = <b>${totalEffective}</b></div>
+    <div><b>Pourcentage des présences</b> = (${totalEffective} × 100) / ${totalPossible} = <b>${pctPres}%</b></div>
+    <div><b>Pourcentage des absences</b> = (${sumAbs} × 100) / ${totalPossible} = <b>${pctAbs}%</b></div>
+    <div>Nombre d'élèves n'ayant jamais manqué ou n'ayant pas manqué plus de 4 classes : <b>${jamaisManque}</b></div>
+    <div>Nombre d'élèves ayant manqué plus de 4 classes : <b>${plusDe4}</b></div>`;
+  regMoisData._computed = {effG, effF, effT:els.length, totalPossible, sumAbs, totalEffective, pctPres, pctAbs, jamaisManque, plusDe4, joursClasse:possibleSlotsPerDay};
+}
+
+/* ---- 3. Évaluations & Statistiques ---- */
+function regEvalKey(){ return 'registre:eval:'+regClasse()+':'+document.getElementById('reg-eval-mois-select').value; }
+function regLoadEval(){
+  regEvalData = load(regEvalKey(), null);
+  if(!regEvalData){ regEvalData = { numero:'', ape:'', seuilCM:10, seuilReussite:'6/9', notes:{}, aCompose:{}, seuilAtteint:{} }; }
+  document.getElementById('reg-eval-numero').value = regEvalData.numero||'';
+  document.getElementById('reg-eval-ape').value = regEvalData.ape||'';
+  document.getElementById('reg-seuil-cm').value = regEvalData.seuilCM ?? 10;
+  document.getElementById('reg-seuil-reussite').value = regEvalData.seuilReussite || '6/9';
+  regRenderEval(); regRenderStats(); regSigEvalReload();
+}
+function regComputeTotal(el){
+  const notes = regEvalData.notes[el.id] || {};
+  let total = 0;
+  REG_SUBJECTS.forEach(s=>{
+    if(!s.cmcp){ const v=parseFloat(notes[s.key]); if(!isNaN(v)) total+=v; return; }
+    const cm=parseFloat(notes[s.key+'_cm']); const cp=parseFloat(notes[s.key+'_cp']);
+    if(!isNaN(cm)){ total += cm>=regEvalData.seuilCM ? cm+(isNaN(cp)?0:cp) : cm; }
+  });
+  return total;
+}
+function regRenderEval(){
+  const thead=document.querySelector('#reg-table-eval thead'); const tbody=document.querySelector('#reg-table-eval tbody');
+  const els = regEleves();
+  document.getElementById('reg-eval-empty').style.display = els.length ? 'none' : 'block';
+  const tr1=document.createElement('tr');
+  // Subject cols first, then summary cols at the end
+  tr1.innerHTML = `<th rowspan="2">N°</th><th rowspan="2">Nom &amp; Prénoms</th><th rowspan="2">A composé</th>` +
+    REG_SUBJECTS.map(s=> s.cmcp ? `<th colspan="3">${s.label}</th>` : `<th rowspan="2">${s.label}</th>`).join('') +
+    `<th rowspan="2" style="background:#FFF7DD;">TOTAL</th>
+     <th rowspan="2" style="background:#FFF7DD;">Moy. /20</th>
+     <th rowspan="2" style="background:#FFF7DD;">Moy. /10</th>
+     <th rowspan="2" style="background:#FFF7DD;">Rang</th>
+     <th rowspan="2" style="background:#FFF7DD;">Seuil réussite fixé</th>
+     <th colspan="2" style="background:#FFF7DD;">Seuil atteint</th>`;
+  const tr2=document.createElement('tr');
+  tr2.innerHTML = REG_SUBJECTS.map(s=> s.cmcp ? `<th>CM</th><th>CP</th><th>T</th>` : ``).join('') +
+    `<th style="background:#FFFDF3;">Oui</th><th style="background:#FFFDF3;">Non</th>`;
+  thead.innerHTML=''; thead.appendChild(tr1); thead.appendChild(tr2);
+
+  const ranked = els.map(el=>({el, compose: regEvalData.aCompose[el.id]!==false, total: regComputeTotal(el)}))
+                     .filter(r=>r.compose).sort((a,b)=>b.total-a.total);
+  let rangMap={}, prevTotal=null, prevRang=0;
+  ranked.forEach((r,i)=>{ if(r.total===prevTotal){ rangMap[r.el.id]=prevRang; } else { prevRang=i+1; rangMap[r.el.id]=prevRang; prevTotal=r.total; } });
+
+  tbody.innerHTML='';
+  els.forEach((el,idx)=>{
+    const notes = regEvalData.notes[el.id] || {};
+    const compose = regEvalData.aCompose[el.id] !== false;
+    const total = regComputeTotal(el);
+    const cells = REG_SUBJECTS.map(s=>{
+      if(!s.cmcp){ const v=notes[s.key] ?? ''; return `<td><input data-eid="${el.id}" data-sub="${s.key}" data-part="single" value="${escapeHtml(v)}" style="width:44px;"></td>`; }
+      const cm=notes[s.key+'_cm'] ?? ''; const cp=notes[s.key+'_cp'] ?? '';
+      const cmNum=parseFloat(cm), cpNum=parseFloat(cp);
+      let t=0; if(!isNaN(cmNum)){ t = cmNum>=regEvalData.seuilCM ? cmNum+(isNaN(cpNum)?0:cpNum) : cmNum; }
+      return `<td><input data-eid="${el.id}" data-sub="${s.key}" data-part="cm" type="number" step="0.5" value="${cm}" style="width:38px;"></td>
+              <td><input data-eid="${el.id}" data-sub="${s.key}" data-part="cp" type="number" step="0.5" value="${cp}" style="width:38px;"></td>
+              <td>${isNaN(cmNum)?'':t}</td>`;
+    }).join('');
+    const moy20 = compose ? (total/9).toFixed(2) : '—';
+    const moy10 = compose ? (total/18).toFixed(2) : '—';
+    const rang = compose ? (rangMap[el.id]+'e') : '—';
+    const atteintVal = regEvalData.seuilAtteint[el.id];
+    const cls = el.genre==='F' ? 'reg-fille' : (el.genre==='M' ? 'reg-garcon' : '');
+    const tr=document.createElement('tr'); tr.className=cls;
+    tr.innerHTML = `<td>${idx+1}</td>
+      <td class="reg-nomcell" style="text-align:left;">${escapeHtml(el.nom)} ${escapeHtml(el.prenom)}</td>
+      <td><input type="checkbox" data-compose="${el.id}" ${compose?'checked':''}></td>
+      ${cells}
+      <td style="background:#FFFDF3;"><b>${compose?total.toFixed(1):'—'}</b></td>
+      <td style="background:#FFFDF3;">${moy20}</td>
+      <td style="background:#FFFDF3;">${moy10}</td>
+      <td style="background:#FFFDF3;">${rang}</td>
+      <td style="background:#FFFDF3;">${escapeHtml(regEvalData.seuilReussite||'6/9')}</td>
+      <td style="background:#FFFDF3;text-align:center;padding:4px;">
+        <label style="display:flex;align-items:center;justify-content:center;cursor:pointer;">
+          <input type="checkbox" data-seuil="${el.id}" data-val="oui" ${atteintVal==='oui'?'checked':''}
+            style="width:24px;height:24px;cursor:pointer;accent-color:#2E7D6B;"></label></td>
+      <td style="background:#FFFDF3;text-align:center;padding:4px;">
+        <label style="display:flex;align-items:center;justify-content:center;cursor:pointer;">
+          <input type="checkbox" data-seuil="${el.id}" data-val="non" ${atteintVal==='non'?'checked':''}
+            style="width:24px;height:24px;cursor:pointer;accent-color:#D32F2F;"></label></td>`;
+    tbody.appendChild(tr);
+  });
+}
+function regRenderStats(){
+  const tbody=document.querySelector('#reg-table-stats tbody'); tbody.innerHTML='';
+  const els = regEleves();
+  const G = els.filter(e=>e.genre==='M'), F = els.filter(e=>e.genre==='F');
+  function count(list,pred){ return list.filter(pred).length; }
+  const composePred = el=> regEvalData.aCompose[el.id]!==false;
+  const seuilOuiPred = el=> regEvalData.seuilAtteint[el.id]==='oui';
+  const seuilNonPred = el=> regEvalData.seuilAtteint[el.id]!=='oui';
+  const moyennePred = el=> composePred(el) && (regComputeTotal(el)/9)>=10;
+  const pasMoyennePred = el=> composePred(el) && (regComputeTotal(el)/9)<10;
+  function row(label,pred){
+    const g=count(G,pred), f=count(F,pred), t=g+f;
+    tbody.insertAdjacentHTML('beforeend', `<tr><td style="text-align:left;">${label}</td><td class="reg-col-garcon">${g}</td><td class="reg-col-fille">${f}</td><td><b>${t}</b></td></tr>`);
+    return {g,f,t};
+  }
+  row('Effectif', ()=>true);
+  const compose = row('Ont composé', composePred);
+  row("N'ont pas composé", el=>!composePred(el));
+  row('Ont atteint le seuil ('+(regEvalData.seuilReussite||'6/9')+')', seuilOuiPred);
+  row("N'ont pas atteint le seuil", seuilNonPred);
+  row('Ont eu la moyenne (≥ 10/20 soit ≥ 5/10)', moyennePred);
+  row("N'ont pas eu la moyenne (≤ 9,99/20 soit ≤ 4,99/10)", pasMoyennePred);
+  function pct(part,whole){ return whole ? ((part/whole)*100).toFixed(1)+'%' : '0.0%'; }
+  const seuilOui = {g:count(G,seuilOuiPred), f:count(F,seuilOuiPred)};
+  const moyOk = {g:count(G,moyennePred), f:count(F,moyennePred)};
+  tbody.insertAdjacentHTML('beforeend', `<tr><td style="text-align:left;">Pourcentage de réussite (seuil ${regEvalData.seuilReussite||'6/9'})</td>
+    <td class="reg-col-garcon">${pct(seuilOui.g,compose.g)}</td><td class="reg-col-fille">${pct(seuilOui.f,compose.f)}</td><td><b>${pct(seuilOui.g+seuilOui.f,compose.t)}</b></td></tr>`);
+  tbody.insertAdjacentHTML('beforeend', `<tr><td style="text-align:left;">Pourcentage de réussite (moyenne 5/10 et 10/20)</td>
+    <td class="reg-col-garcon">${pct(moyOk.g,compose.g)}</td><td class="reg-col-fille">${pct(moyOk.f,compose.f)}</td><td><b>${pct(moyOk.g+moyOk.f,compose.t)}</b></td></tr>`);
+}
+
+/* ---- 4. Récapitulatif annuel ---- */
+function regRecapKey(){ return 'registre:recap:'+regClasse(); }
+function regLoadRecap(){
+  regRecap = load(regRecapKey(), REG_MOIS.map(m=>({mois:m, joursClasse:'', totalPresPoss:'', totalAbs:'', totalPresEff:'', pourcentage:'', jamaisManque:'', plusDe4:'', absImputables:'', observations:''})));
+  regRenderRecap();
+}
+function regRenderRecap(){
+  const tbody=document.querySelector('#reg-table-recap tbody'); tbody.innerHTML='';
+  regRecap.forEach((r,idx)=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML = `<td style="font-weight:700;">${r.mois}</td>
+      <td><input data-i="${idx}" data-f="joursClasse" value="${escapeHtml(r.joursClasse)}" style="width:50px;"></td>
+      <td><input data-i="${idx}" data-f="totalPresPoss" value="${escapeHtml(r.totalPresPoss)}" style="width:60px;"></td>
+      <td><input data-i="${idx}" data-f="totalAbs" value="${escapeHtml(r.totalAbs)}" style="width:60px;"></td>
+      <td><input data-i="${idx}" data-f="totalPresEff" value="${escapeHtml(r.totalPresEff)}" style="width:60px;"></td>
+      <td><input data-i="${idx}" data-f="pourcentage" value="${escapeHtml(r.pourcentage)}" style="width:60px;"></td>
+      <td><input data-i="${idx}" data-f="jamaisManque" value="${escapeHtml(r.jamaisManque)}" style="width:50px;"></td>
+      <td><input data-i="${idx}" data-f="plusDe4" value="${escapeHtml(r.plusDe4)}" style="width:50px;"></td>
+      <td><input data-i="${idx}" data-f="absImputables" value="${escapeHtml(r.absImputables)}" style="width:60px;"></td>
+      <td><input data-i="${idx}" data-f="observations" value="${escapeHtml(r.observations)}" style="width:110px;"></td>`;
+    tbody.appendChild(tr);
+  });
+  tbody.querySelectorAll('input').forEach(inp=>{
+    inp.addEventListener('input', ()=>{ regRecap[inp.dataset.i][inp.dataset.f] = inp.value; });
+  });
+}
+
+/* ---- Init ---- */
+function initRegistre(){
+  const clsSel = document.getElementById('reg-classe-select');
+  clsSel.value = load('registre:classe', 'CI');
+  clsSel.addEventListener('change', ()=>{
+    save('registre:classe', clsSel.value);
+    regRenderEleves(); regLoadMois(); regLoadEval(); regLoadRecap();
+  });
+
+  const maitreInput = document.getElementById('reg-maitre-input');
+  maitreInput.value = load('registre:maitre', '');
+  maitreInput.addEventListener('input', ()=> save('registre:maitre', maitreInput.value));
+
+  /* ---- Cachet panel wiring ---- */
+  const POLICES = [
+    {label:'Georgia (élégant)', val:'Georgia, serif'},
+    {label:'Palatino (classique)', val:'Palatino Linotype, serif'},
+    {label:'Times New Roman', val:'Times New Roman, serif'},
+    {label:'Courier (machine à écrire)', val:'Courier New, monospace'},
+    {label:'Arial (moderne)', val:'Arial, sans-serif'},
+    {label:'Trebuchet (arrondi)', val:'Trebuchet MS, sans-serif'},
+  ];
+
+  // Populate font selects
+  ['reg-font-dir','reg-font-maitre'].forEach(id=>{
+    const sel = document.getElementById(id);
+    if(!sel) return;
+    POLICES.forEach(p=>{ const o=document.createElement('option'); o.value=p.val; o.textContent=p.label; sel.appendChild(o); });
+  });
+
+  // Restore saved values
+  const dirInput    = document.getElementById('reg-directeur-input');
+  const dirNomInput = document.getElementById('reg-cachet-dir-nom');
+  const maitreCachetInput = document.getElementById('reg-maitre-cachet-input');
+  if(dirInput) dirInput.value = regCachetDir.nom || '';
+  if(dirNomInput) dirNomInput.value = regCachetDir.nom || '';
+  if(maitreCachetInput) maitreCachetInput.value = regCachetMaitre.nom || '';
+  const fontDir = document.getElementById('reg-font-dir');
+  const fontMaitre = document.getElementById('reg-font-maitre');
+  if(fontDir) fontDir.value = regCachetDir.police || 'Georgia, serif';
+  if(fontMaitre) fontMaitre.value = regCachetMaitre.police || 'Georgia, serif';
+
+  // Restore saved color
+  const savedCouleur = regCachetDir.couleur || '#C0392B';
+  const radios = document.querySelectorAll('input[name="cachet-couleur"]');
+  let matched = false;
+  radios.forEach(r=>{ if(r.value === savedCouleur){ r.checked=true; matched=true; }});
+  if(!matched){
+    document.getElementById('coul-custom').checked = true;
+    document.getElementById('coul-custom-picker').value = savedCouleur;
+  }
+  document.getElementById('coul-custom-picker').addEventListener('input', ()=>{
+    document.getElementById('coul-custom').checked = true;
+  });
+
+  // Cachet école — upload image
+  const uploadInput = document.getElementById('reg-cachet-upload');
+  const dropzone    = document.getElementById('reg-cachet-dropzone');
+  const previewEcoleEl = document.getElementById('reg-cachet-preview-ecole');
+
+  // Restore saved image if any
+  if(regCachetEcole.dataUrl){
+    previewEcoleEl.innerHTML = `<img src="${regCachetEcole.dataUrl}" style="max-width:160px;max-height:160px;border-radius:8px;opacity:.85;mix-blend-mode:multiply;">`;
+    dropzone.style.borderColor = 'var(--sidebar-1)';
+  }
+
+  uploadInput.addEventListener('change', ()=>{
+    const file = uploadInput.files[0];
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = (e)=>{
+      const dataUrl = e.target.result;
+      previewEcoleEl.innerHTML = `<img src="${dataUrl}" style="max-width:160px;max-height:160px;border-radius:8px;opacity:.85;mix-blend-mode:multiply;">`;
+      dropzone.style.borderColor = 'var(--sidebar-1)';
+      regCachetEcole.dataUrl = dataUrl;
+      regCachetEcole.svg = '';
+      // Don't save to localStorage — image too large; keep in memory for session
+    };
+    reader.readAsDataURL(file);
+  });
+
+  document.getElementById('reg-btn-cachet-ecole').addEventListener('click', ()=>{
+    if(!regCachetEcole.dataUrl){
+      showToast("Choisissez d'abord une image de cachet.", 'error');
+      return;
+    }
+    regRenderAllCachets();
+    showToast('Cachet apposé ✓', 'success');
+  });
+
+  document.getElementById('reg-btn-cachet-dir').addEventListener('click', ()=>{
+    const col = regGetCouleur();
+    const pol = fontDir ? fontDir.value : 'Georgia, serif';
+    const nom = dirNomInput ? dirNomInput.value : (dirInput ? dirInput.value : '');
+    regCachetDir = { couleur:col, police:pol, nom, svg: buildCachetRectSVG(nom, 'La Directrice / Le Directeur', col, pol) };
+    save('registre:cachet:dir', regCachetDir);
+    regRenderAllCachets();
+    showToast('Cachet direction généré ✓','success');
+  });
+
+  document.getElementById('reg-btn-cachet-maitre').addEventListener('click', ()=>{
+    const col = regGetCouleur();
+    const pol = fontMaitre ? fontMaitre.value : 'Georgia, serif';
+    const nom = maitreCachetInput ? maitreCachetInput.value : '';
+    regCachetMaitre = { couleur:col, police:pol, nom, svg: buildCachetRectSVG(nom, 'Le Maître / La Maîtresse', col, pol) };
+    save('registre:cachet:maitre', regCachetMaitre);
+    regRenderAllCachets();
+    showToast('Cachet maître généré ✓','success');
+  });
+
+  regRenderAllCachets();
+
+  /* ---- Security panel ---- */
+  const lockToggle = document.getElementById('lock-enabled-toggle');
+  const lockLabel  = document.getElementById('lock-status-label');
+  let lockEnabled  = load('lockEnabled', true);
+  function updateLockUI(){
+    if(lockToggle) lockToggle.checked = lockEnabled;
+    if(lockLabel) lockLabel.textContent = lockEnabled ? 'Activé — le code est demandé à l\'ouverture' : 'Désactivé — aucun code demandé';
+  }
+  updateLockUI();
+  if(lockToggle){
+    lockToggle.addEventListener('change', ()=>{
+      lockEnabled = lockToggle.checked;
+      save('lockEnabled', lockEnabled);
+      updateLockUI();
+      showToast(lockEnabled ? 'Verrouillage activé ✓' : 'Verrouillage désactivé', lockEnabled ? 'success' : 'error');
+    });
+  }
+  const lockNowBtn = document.getElementById('lock-now-btn');
+  if(lockNowBtn){
+    lockNowBtn.addEventListener('click', ()=>{
+      document.getElementById('app').style.display='none';
+      document.getElementById('lock-screen').style.display='flex';
+      document.getElementById('code-input').value='';
+      document.getElementById('code-error').textContent='';
+    });
+  }
+
+  /* ---- Fond d'écran ---- */
+  function applyWallpaper(){
+    const wp = localStorage.getItem('monecole:wallpaper');
+    const sidebar = document.getElementById('sidebar');
+    const appEl   = document.getElementById('app');
+    if(wp){
+      const style = `url("${wp}") center/cover no-repeat fixed`;
+      if(sidebar) sidebar.style.background = style;
+      if(appEl)   appEl.style.background   = style;
+    } else {
+      if(sidebar) sidebar.style.background = '';
+      if(appEl)   appEl.style.background   = '';
+    }
+  }
+  applyWallpaper();
+
+  // Wallpaper code unlock
+  document.getElementById('wp-unlock-btn').addEventListener('click', ()=>{
+    const val = document.getElementById('wp-code-input').value;
+    const err = document.getElementById('wp-code-error');
+    if(val === accessCode){
+      document.getElementById('wp-locked').style.display = 'none';
+      document.getElementById('wp-editor').style.display = 'block';
+      err.textContent = '';
+      // Show current wallpaper in preview
+      const cur = localStorage.getItem('monecole:wallpaper');
+      if(cur){
+        document.getElementById('wp-preview').innerHTML =
+          `<img src="${cur}" style="max-width:100%;max-height:180px;border-radius:10px;object-fit:cover;">`;
+      }
+    } else {
+      err.textContent = 'Code incorrect.';
+      document.getElementById('wp-code-input').value = '';
+    }
+  });
+
+  // File chosen
+  let wpDataUrl = null;
+  document.getElementById('wp-upload').addEventListener('change', (e)=>{
+    const file = e.target.files[0];
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev)=>{
+      wpDataUrl = ev.target.result;
+      document.getElementById('wp-preview').innerHTML =
+        `<img src="${wpDataUrl}" style="max-width:100%;max-height:180px;border-radius:10px;object-fit:cover;">`;
+    };
+    reader.readAsDataURL(file);
+  });
+
+  // Apply wallpaper
+  document.getElementById('wp-save-btn').addEventListener('click', ()=>{
+    if(!wpDataUrl){ showToast('Choisissez d\'abord une image.','error'); return; }
+    localStorage.setItem('monecole:wallpaper', wpDataUrl);
+    applyWallpaper();
+    showToast('Fond d\'écran appliqué ✓','success');
+  });
+
+  // Remove wallpaper
+  document.getElementById('wp-remove-btn').addEventListener('click', ()=>{
+    localStorage.removeItem('monecole:wallpaper');
+    wpDataUrl = null;
+    document.getElementById('wp-preview').innerHTML = '';
+    applyWallpaper();
+    showToast('Fond d\'écran supprimé','success');
+  });
+  const secSave = document.getElementById('sec-settings-save');
+  if(secSave){
+    secSave.addEventListener('click', ()=>{
+      const cur=document.getElementById('sec-cur-code').value, next=document.getElementById('sec-new-code').value, conf=document.getElementById('sec-confirm-code').value;
+      const msg=document.getElementById('sec-settings-msg');
+      if(cur!==accessCode){ msg.style.color='var(--absent)'; msg.textContent='Code actuel incorrect.'; return; }
+      if(next.length<4){ msg.style.color='var(--absent)'; msg.textContent='Le nouveau code doit avoir 4 caractères min.'; return; }
+      if(next!==conf){ msg.style.color='var(--absent)'; msg.textContent='Les codes ne correspondent pas.'; return; }
+      accessCode=next; save('accessCode',accessCode);
+      msg.style.color='#3CA66C'; msg.textContent='Code mis à jour !';
+      showToast('Code d\u2019accès mis à jour ✓','success');
+      ['sec-cur-code','sec-new-code','sec-confirm-code'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
+      setTimeout(()=>{ msg.textContent=''; },1800);
+    });
+  }
+
+  document.querySelectorAll('.reg-subtab-btn[data-regtab]').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      document.querySelectorAll('.reg-subtab-btn[data-regtab]').forEach(b=>b.classList.remove('active'));
+      document.querySelectorAll('.reg-subpanel').forEach(p=>p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('regpanel-'+btn.dataset.regtab).classList.add('active');
+    });
+  });
+
+  const moisSelect = document.getElementById('reg-mois-select');
+  REG_MOIS.forEach(m=>{ const o=document.createElement('option'); o.value=m; o.textContent=m; moisSelect.appendChild(o); });
+  const evalMoisSelect = document.getElementById('reg-eval-mois-select');
+  REG_MOIS.forEach(m=>{ const o=document.createElement('option'); o.value=m; o.textContent=m; evalMoisSelect.appendChild(o); });
+
+  const arreteDate = document.getElementById('reg-arrete-date');
+  arreteDate.addEventListener('change', ()=>{
+    const w=document.getElementById('reg-arrete-warn');
+    if(!arreteDate.value){ w.textContent=''; return; }
+    const d=new Date(arreteDate.value+'T00:00:00'); const day=d.getDay();
+    w.textContent = (day===0||day===6) ? "⚠️ Ce jour tombe un week-end : choisissez un jour ouvrable (lundi–vendredi)." : "";
+  });
+
+  document.getElementById('reg-btn-grille').addEventListener('click', ()=>{
+    let year = parseInt(document.getElementById('reg-annee-input').value);
+    if(!year){ showToast("Merci de saisir l'année civile du mois choisi.", 'error'); return; }
+    const monthIndex = REG_MOIS_INDEX[moisSelect.value];
+    regMoisData.annee = year;
+    const nb = regDaysInMonth(year, monthIndex);
+    const days=[];
+    for(let d=1; d<=nb; d++){
+      const wd = new Date(year, monthIndex, d).getDay();
+      if(wd>=1 && wd<=5) days.push({day:d, wd, mercredi: wd===3, ferie:false});
+    }
+    regMoisData.days = days;
+    regRenderMoisGrid();
+  });
+
+  document.querySelector('#reg-table-mois thead').addEventListener('click', (e)=>{
+    const th = e.target.closest('.reg-day-head'); if(!th) return;
+    const dayNum = parseInt(th.dataset.day);
+    const d = regMoisData.days.find(x=>x.day===dayNum);
+    if(d){ d.ferie=!d.ferie; regRenderMoisGrid(); }
+  });
+  document.querySelector('#reg-table-mois tbody').addEventListener('click', (e)=>{
+    const td = e.target.closest('.reg-slot'); if(!td || td.dataset.ferie==='1') return;
+    const eid=td.dataset.eid, key=td.dataset.key;
+    if(!regMoisData.absences[eid]) regMoisData.absences[eid]={};
+    regMoisData.absences[eid][key] = !regMoisData.absences[eid][key];
+    regRenderMoisGrid();
+  });
+  document.querySelector('#reg-table-mois tbody').addEventListener('input', (e)=>{
+    if(e.target.dataset.motif) regMoisData.motifs[e.target.dataset.motif] = e.target.value;
+  });
+  document.getElementById('reg-btn-save-mois').addEventListener('click', ()=>{
+    regMoisData.arreteDate = arreteDate.value;
+    regMoisData.nameMaitre = document.getElementById('reg-name-mois').value;
+    save(regMoisKey(), regMoisData);
+    showToast('Mois enregistré ✓', 'success');
+  });
+  moisSelect.addEventListener('change', regLoadMois);
+  regSigMoisReload = regSetupSigPad(document.getElementById('reg-sig-mois'), ()=> 'registre:sig:mois:'+regClasse()+':'+moisSelect.value, document.getElementById('reg-clear-sig-mois'));
+
+  document.getElementById('reg-btn-gen-eval').addEventListener('click', ()=>{ regRenderEval(); regRenderStats(); });
+  document.getElementById('reg-seuil-cm').addEventListener('change', (e)=>{ regEvalData.seuilCM = parseFloat(e.target.value)||0; regRenderEval(); regRenderStats(); });
+  document.getElementById('reg-seuil-reussite').addEventListener('change', (e)=>{ regEvalData.seuilReussite = e.target.value; regRenderEval(); });
+  document.getElementById('reg-table-eval').addEventListener('input', (e)=>{
+    const eid=e.target.dataset.eid, sub=e.target.dataset.sub, part=e.target.dataset.part;
+    if(eid){
+      if(!regEvalData.notes[eid]) regEvalData.notes[eid]={};
+      if(part==='single') regEvalData.notes[eid][sub]=e.target.value; else regEvalData.notes[eid][sub+'_'+part]=e.target.value;
+      regRenderEval(); regRenderStats(); return;
+    }
+    if(e.target.dataset.compose){ regEvalData.aCompose[e.target.dataset.compose] = e.target.checked; regRenderEval(); regRenderStats(); }
+  });
+  document.getElementById('reg-table-eval').addEventListener('change', (e)=>{
+    if(e.target.dataset.seuil){
+      const id=e.target.dataset.seuil, val=e.target.dataset.val;
+      regEvalData.seuilAtteint[id] = e.target.checked ? val : undefined;
+      regRenderEval(); regRenderStats();
+    }
+  });
+  document.getElementById('reg-btn-save-eval').addEventListener('click', ()=>{
+    regEvalData.numero = document.getElementById('reg-eval-numero').value;
+    regEvalData.ape = document.getElementById('reg-eval-ape').value;
+    regEvalData.seuilCM = parseFloat(document.getElementById('reg-seuil-cm').value)||0;
+    regEvalData.seuilReussite = document.getElementById('reg-seuil-reussite').value;
+    save(regEvalKey(), regEvalData);
+    showToast('Évaluation enregistrée ✓', 'success');
+  });
+  evalMoisSelect.addEventListener('change', regLoadEval);
+  regSigEvalReload = regSetupSigPad(document.getElementById('reg-sig-eval'), ()=> 'registre:sig:eval:'+regClasse()+':'+evalMoisSelect.value, document.getElementById('reg-clear-sig-eval'));
+
+  document.getElementById('reg-btn-save-recap').addEventListener('click', ()=>{ save(regRecapKey(), regRecap); showToast('Récapitulatif enregistré ✓','success'); });
+  document.getElementById('reg-btn-import-recap').addEventListener('click', ()=>{
+    regRecap.forEach(r=>{
+      const md = load('registre:appel:'+regClasse()+':'+r.mois, null);
+      if(md && md._computed){
+        const c = md._computed;
+        r.joursClasse=c.joursClasse; r.totalPresPoss=c.totalPossible; r.totalAbs=c.sumAbs;
+        r.totalPresEff=c.totalEffective; r.pourcentage=c.pctPres; r.jamaisManque=c.jamaisManque; r.plusDe4=c.plusDe4;
+      }
+    });
+    regRenderRecap();
+    showToast('Import terminé ✓','success');
+  });
+
+  regRenderEleves();
+  regLoadMois();
+  regLoadEval();
+  regLoadRecap();
+}
+
+/* ===================== Tableau d'affichage ===================== */
+function initAffichage(){
+  // Sub-tabs
+  document.querySelectorAll('.reg-subtab-btn[data-afftab]').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      document.querySelectorAll('.reg-subtab-btn[data-afftab]').forEach(b=>b.classList.remove('active'));
+      document.querySelectorAll('.reg-subpanel[id^="affpanel-"]').forEach(p=>p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('affpanel-'+btn.dataset.afftab).classList.add('active');
+    });
+  });
+
+  // Populate honneur mois select
+  const hMois = document.getElementById('aff-honneur-mois');
+  REG_MOIS.forEach(m=>{ const o=document.createElement('option'); o.value=m; o.textContent=m; hMois.appendChild(o); });
+
+  // Helper: build signature block for directrice
+  function signBlock(id){
+    const el = document.getElementById(id);
+    if(!el) return;
+    el.innerHTML = `
+      <div style="margin-top:16px;margin-bottom:10px;display:flex;gap:10px;flex-wrap:wrap;">
+        <button type="button" class="btn-primary" onclick="window.print()"
+          style="background:none;color:var(--ink);border:1px solid var(--line);box-shadow:none;font-size:12px;">
+          🖨️ Imprimer cette rubrique
+        </button>
+      </div>
+      <div class="reg-certif" style="margin-top:10px;">« Lu et approuvé »</div>
+      <div class="reg-sign-row">
+        <div class="reg-sign-box">
+          <h4>La Directrice / Le Directeur</h4>
+          <canvas class="reg-sigpad" id="${id}-sigpad" width="280" height="100"></canvas>
+          <div><button type="button" class="reg-subtab-btn" style="border:1px solid var(--line);border-radius:6px;padding:4px 10px;" id="${id}-clear">Effacer</button></div>
+          <input class="reg-name-input" id="${id}-name" placeholder="Nom et prénoms" style="width:100%;border:none;border-bottom:1px solid var(--line);padding:6px 4px;font-size:13px;background:transparent;margin-top:6px;">
+          <div id="${id}-cachet" style="margin-top:8px;"></div>
+        </div>
+      </div>`;
+    // Show cachet if exists
+    if(regCachetEcole.dataUrl){
+      document.getElementById(id+'-cachet').innerHTML =
+        `<img src="${regCachetEcole.dataUrl}" style="max-width:100px;opacity:.85;mix-blend-mode:multiply;transform:rotate(-3deg);">`;
+    }
+    // Restore saved signature
+    const saved = localStorage.getItem('monecole:aff:sig:'+id);
+    if(saved){
+      const canvas = document.getElementById(id+'-sigpad');
+      const ctx = canvas.getContext('2d');
+      const img = new Image(); img.onload=()=>ctx.drawImage(img,0,0); img.src=saved;
+    }
+    // Restore name
+    const savedName = load('aff:name:'+id,'');
+    if(savedName) document.getElementById(id+'-name').value = savedName;
+    document.getElementById(id+'-name').addEventListener('input', e=>{ save('aff:name:'+id, e.target.value); });
+    // Setup sig pad
+    const canvas = document.getElementById(id+'-sigpad');
+    const ctx = canvas.getContext('2d');
+    ctx.lineWidth=2; ctx.lineCap='round'; ctx.strokeStyle='#221D3B';
+    let drawing=false;
+    function pos(e){ const r=canvas.getBoundingClientRect(); const t=e.touches?e.touches[0]:e; return {x:(t.clientX-r.left)*(canvas.width/r.width),y:(t.clientY-r.top)*(canvas.height/r.height)}; }
+    canvas.addEventListener('mousedown',e=>{drawing=true;const p=pos(e);ctx.beginPath();ctx.moveTo(p.x,p.y);e.preventDefault();});
+    canvas.addEventListener('mousemove',e=>{if(!drawing)return;const p=pos(e);ctx.lineTo(p.x,p.y);ctx.stroke();e.preventDefault();});
+    window.addEventListener('mouseup',()=>{ if(!drawing)return; drawing=false; localStorage.setItem('monecole:aff:sig:'+id,canvas.toDataURL()); });
+    canvas.addEventListener('touchstart',e=>{drawing=true;const p=pos(e);ctx.beginPath();ctx.moveTo(p.x,p.y);e.preventDefault();},{passive:false});
+    canvas.addEventListener('touchmove',e=>{if(!drawing)return;const p=pos(e);ctx.lineTo(p.x,p.y);ctx.stroke();e.preventDefault();},{passive:false});
+    canvas.addEventListener('touchend',()=>{ if(!drawing)return; drawing=false; localStorage.setItem('monecole:aff:sig:'+id,canvas.toDataURL()); });
+    document.getElementById(id+'-clear').addEventListener('click',()=>{ ctx.clearRect(0,0,canvas.width,canvas.height); localStorage.removeItem('monecole:aff:sig:'+id); });
+  }
+
+  // Helper: file to base64 image preview
+  function setupFileUpload(inputId, previewId, storageKey, saveBtn){
+    let dataUrl = null;
+    const saved = load(storageKey,'');
+    if(saved){
+      const el = document.getElementById(previewId);
+      if(el) el.innerHTML = `<img src="${saved}" style="max-width:100%;max-height:300px;border-radius:8px;object-fit:contain;">`;
+    }
+    document.getElementById(inputId).addEventListener('change',e=>{
+      const file = e.target.files[0]; if(!file) return;
+      const reader = new FileReader();
+      reader.onload = ev=>{
+        dataUrl = ev.target.result;
+        document.getElementById(previewId).innerHTML = `<img src="${dataUrl}" style="max-width:100%;max-height:300px;border-radius:8px;object-fit:contain;">`;
+      };
+      reader.readAsDataURL(file);
+    });
+    if(saveBtn) document.getElementById(saveBtn).addEventListener('click',()=>{
+      if(!dataUrl){ showToast('Choisissez d\'abord un fichier.','error'); return; }
+      save(storageKey, dataUrl); showToast('Enregistré ✓','success');
+    });
+  }
+
+  // ---- 1. Identité ----
+  const affFields = ['nom','prenom','grade','anciennete','ecole','classe-id'];
+  affFields.forEach(f=>{
+    const el = document.getElementById('aff-'+f);
+    if(el){ el.value = load('aff:'+f,''); el.addEventListener('input',()=>save('aff:'+f,el.value)); }
+  });
+  setupFileUpload('aff-photo-upload','aff-photo-preview','aff:photo',null);
+  document.getElementById('aff-photo-upload').addEventListener('change',e=>{
+    const file=e.target.files[0]; if(!file) return;
+    const reader=new FileReader();
+    reader.onload=ev=>{ save('aff:photo',ev.target.result); showToast('Photo enregistrée ✓','success'); };
+    reader.readAsDataURL(file);
+  });
+  // restore photo
+  const savedPhoto = load('aff:photo','');
+  if(savedPhoto) document.getElementById('aff-photo-preview').innerHTML=`<img src="${savedPhoto}" style="max-width:120px;max-height:150px;border-radius:8px;object-fit:cover;">`;
+  document.getElementById('aff-save-identite').addEventListener('click',()=>{ showToast('Identité enregistrée ✓','success'); });
+  signBlock('aff-sign-identite');
+
+  // ---- 2. Emploi du temps ----
+  setupFileUpload('aff-emploi-upload','aff-emploi-preview','aff:emploi','aff-save-emploi');
+  signBlock('aff-sign-emploi');
+
+  // ---- 3. Conseil de classe ----
+  const savedConseil = load('aff:conseil',[]);
+  const conseilInputs = document.querySelectorAll('.aff-conseil-item');
+  conseilInputs.forEach((inp,i)=>{ if(savedConseil[i]) inp.value=savedConseil[i]; });
+  document.getElementById('aff-conseil-add').addEventListener('click',()=>{
+    const list = document.getElementById('aff-conseil-list');
+    const n = list.children.length+1;
+    const div=document.createElement('div');
+    div.style.cssText='display:flex;align-items:center;gap:10px;margin-bottom:8px;';
+    div.innerHTML=`<span style="font-weight:700;color:var(--muted);min-width:20px;">${n}.</span>
+      <input class="aff-conseil-item" placeholder="Nom et prénom de l'élève" style="flex:1;padding:8px;border:1px solid var(--line);border-radius:8px;font-size:13px;">`;
+    list.appendChild(div);
+  });
+  document.getElementById('aff-save-conseil').addEventListener('click',()=>{
+    const vals = [...document.querySelectorAll('.aff-conseil-item')].map(i=>i.value);
+    save('aff:conseil',vals); showToast('Conseil enregistré ✓','success');
+  });
+  signBlock('aff-sign-conseil');
+
+  // ---- 4. Liste des élèves ----
+  document.getElementById('aff-btn-gen-eleves').addEventListener('click',()=>{
+    const cls = document.getElementById('aff-eleves-classe').value;
+    const tbody = document.querySelector('#aff-table-eleves tbody');
+    const list = dossier.filter(r=>classeFinale(r)===cls);
+    tbody.innerHTML = list.map((el,i)=>`<tr class="${el.sexe==='F'?'reg-fille':'reg-garcon'}">
+      <td>${i+1}</td>
+      <td class="reg-nomcell" style="text-align:left;">${escapeHtml(el.nom)} ${escapeHtml(el.prenom)}</td>
+      <td>${el.sexe==='F'?'Fille':'Garçon'}</td>
+      <td>${el.age||''}</td>
+      <td>${cls}</td>
+    </tr>`).join('');
+    if(!list.length) tbody.innerHTML=`<tr><td colspan="5" style="color:var(--muted);text-align:center;">Aucun élève dans cette classe.</td></tr>`;
+    signBlock('aff-sign-eleves');
+  });
+
+  // ---- 5. Règlement intérieur ----
+  setupFileUpload('aff-reglement-upload','aff-reglement-preview','aff:reglement','aff-save-reglement');
+  signBlock('aff-sign-reglement');
+
+  // ---- 6. Courbes ----
+  function drawBarChart(canvasId, labels, values, color, xLabel, yLabel, captionId){
+    const canvas = document.getElementById(canvasId);
+    if(!canvas) return;
+    const W = canvas.width = Math.max(canvas.offsetWidth, 320);
+    const H = canvas.height = 260;
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0,0,W,H);
+
+    const pad = {top:30, right:24, bottom:60, left:48};
+    const cW = W - pad.left - pad.right;
+    const cH = H - pad.top - pad.bottom;
+    const maxV = Math.max(...values, 1);
+    const n = labels.length;
+    if(n === 0) return;
+    const barW = Math.min(48, cW/n * 0.55);
+    const step = cW / n;
+
+    // Grid lines
+    ctx.strokeStyle = '#E8E4D8'; ctx.lineWidth = 1;
+    for(let t=0; t<=maxV; t++){
+      const y = pad.top + cH - cH*(t/maxV);
+      ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(pad.left+cW, y); ctx.stroke();
+    }
+
+    // Axes
+    ctx.strokeStyle = '#555'; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(pad.left, pad.top); ctx.lineTo(pad.left, pad.top+cH); ctx.lineTo(pad.left+cW, pad.top+cH); ctx.stroke();
+
+    // Y ticks
+    ctx.fillStyle='#888'; ctx.font='11px Arial'; ctx.textAlign='right';
+    for(let t=0; t<=maxV; t++){
+      const y = pad.top + cH - cH*(t/maxV);
+      ctx.fillText(t, pad.left-6, y+4);
+    }
+
+    // Bars + X labels
+    const points = [];
+    labels.forEach((lbl,i)=>{
+      const x = pad.left + step*i + step/2 - barW/2;
+      const barH = cH*(values[i]/maxV);
+      const bY = pad.top + cH - barH;
+      // Bar
+      ctx.fillStyle = color + 'CC';
+      ctx.beginPath();
+      if(ctx.roundRect) ctx.roundRect(x, bY, barW, barH, [3,3,0,0]);
+      else ctx.rect(x, bY, barW, barH);
+      ctx.fill();
+      ctx.strokeStyle = color; ctx.lineWidth=1.2;
+      ctx.stroke();
+      // Value on bar
+      ctx.fillStyle = '#333'; ctx.font = 'bold 12px Arial'; ctx.textAlign='center';
+      ctx.fillText(values[i], x+barW/2, bY-5);
+      // X label
+      ctx.fillStyle='#555'; ctx.font='11px Arial';
+      ctx.fillText(lbl, pad.left + step*i + step/2, pad.top+cH+18);
+      // Point for curve
+      points.push({x: pad.left + step*i + step/2, y: bY});
+    });
+
+    // Curve over bars
+    if(points.length > 1){
+      ctx.strokeStyle = color; ctx.lineWidth = 2.5;
+      ctx.setLineDash([]);
+      ctx.beginPath();
+      ctx.moveTo(points[0].x, points[0].y);
+      for(let i=1; i<points.length; i++){
+        const cpx = (points[i-1].x + points[i].x)/2;
+        ctx.bezierCurveTo(cpx, points[i-1].y, cpx, points[i].y, points[i].x, points[i].y);
+      }
+      ctx.stroke();
+      // Dots on curve
+      points.forEach(p=>{
+        ctx.beginPath(); ctx.arc(p.x, p.y, 4, 0, Math.PI*2);
+        ctx.fillStyle = color; ctx.fill();
+        ctx.strokeStyle='#fff'; ctx.lineWidth=1.5; ctx.stroke();
+      });
+    }
+
+    // Axis labels
+    ctx.fillStyle='#444'; ctx.font='11px Arial'; ctx.textAlign='center';
+    ctx.fillText(xLabel, pad.left+cW/2, H-6);
+    ctx.save(); ctx.translate(12, pad.top+cH/2); ctx.rotate(-Math.PI/2);
+    ctx.fillText(yLabel||'Effectif', 0, 0); ctx.restore();
+
+    // Caption
+    if(captionId){
+      const total = values.reduce((a,b)=>a+b,0);
+      document.getElementById(captionId).textContent =
+        `Effectif total : ${total} élève(s) · ${n} valeur(s) distincte(s)`;
+    }
+  }
+
+  function genCourbes(useDemo){
+    const cls = document.getElementById('aff-courbe-classe').value;
+    let list = dossier.filter(r=>classeFinale(r)===cls);
+
+    if(useDemo || list.length === 0){
+      // Fictitious demo class CM2 - 18 pupils
+      list = [
+        {age:10,sexe:'M'},{age:10,sexe:'F'},{age:11,sexe:'M'},{age:11,sexe:'M'},{age:11,sexe:'F'},
+        {age:11,sexe:'F'},{age:12,sexe:'M'},{age:12,sexe:'F'},{age:12,sexe:'M'},{age:12,sexe:'F'},
+        {age:12,sexe:'M'},{age:13,sexe:'F'},{age:13,sexe:'M'},{age:13,sexe:'F'},{age:14,sexe:'M'},
+        {age:10,sexe:'F'},{age:11,sexe:'M'},{age:13,sexe:'F'}
+      ].map((e,i)=>({...e, id:'demo'+i, nom:'Élève', prenom:(i+1)+''}));
+      // assign scolarities as if they all started at CI age
+      const clsToAns = {CI:1,CP:2,CE1:3,CE2:4,CM1:5,CM2:6};
+      list = list.map(e=>({...e, classe:'CM2'}));
+    }
+
+    const clsToAns = {CI:1,CP:2,CE1:3,CE2:4,CM1:5,CM2:6};
+
+    // Age distribution
+    const ageCounts = {};
+    list.forEach(el=>{ const a=parseInt(el.age)||0; if(a>0) ageCounts[a]=(ageCounts[a]||0)+1; });
+    const ageLabels = Object.keys(ageCounts).sort((a,b)=>+a-+b).map(a=>a+' ans');
+    const ageVals   = Object.keys(ageCounts).sort((a,b)=>+a-+b).map(a=>ageCounts[a]);
+
+    // Scolarité distribution
+    const scolCounts = {};
+    list.forEach(el=>{
+      const c = classeFinale(el) || el.classe || cls;
+      const ans = clsToAns[c] || 0;
+      if(ans > 0) scolCounts[ans]=(scolCounts[ans]||0)+1;
+    });
+    const scolLabels = Object.keys(scolCounts).sort((a,b)=>+a-+b).map(k=>k+' an'+(+k>1?'s':''));
+    const scolVals   = Object.keys(scolCounts).sort((a,b)=>+a-+b).map(k=>scolCounts[k]);
+
+    if(useDemo || list[0]?.id?.startsWith('demo')){
+      document.getElementById('aff-ages-caption').textContent = '⚠️ EXEMPLE FICTIF — Cliquez "Réinitialiser" pour effacer et générer avec vos vraies données.';
+      document.getElementById('aff-scol-caption').textContent = '⚠️ EXEMPLE FICTIF — Cliquez "Réinitialiser" pour effacer et générer avec vos vraies données.';
+    }
+
+    setTimeout(()=>{
+      drawBarChart('aff-chart-ages', ageLabels, ageVals, '#4C7EFF', 'Âge des élèves', 'Effectif', 'aff-ages-caption');
+      drawBarChart('aff-chart-scolarite', scolLabels, scolVals, '#12A783', 'Années de scolarité', 'Effectif', 'aff-scol-caption');
+    }, 50);
+    signBlock('aff-sign-courbes');
+  }
+
+  document.getElementById('aff-btn-gen-courbes').addEventListener('click',()=>genCourbes(false));
+  document.getElementById('aff-btn-demo-courbes').addEventListener('click',()=>genCourbes(true));
+  document.getElementById('aff-btn-reset-courbes').addEventListener('click',()=>{
+    ['aff-chart-ages','aff-chart-scolarite'].forEach(id=>{
+      const c=document.getElementById(id); if(c) c.getContext('2d').clearRect(0,0,c.width,c.height);
+    });
+    document.getElementById('aff-ages-caption').textContent='';
+    document.getElementById('aff-scol-caption').textContent='';
+    document.getElementById('aff-sign-courbes').innerHTML='';
+    showToast('Courbes réinitialisées — générez avec vos vraies données.','success');
+  });
+
+  // ---- 7-9. Poésies / Chants / Contes (titres seulement) ----
+  [['poesies','poesie'],['chants','chant'],['contes','conte']].forEach(([section,key])=>{
+    const saved = load('aff:'+section, []);
+    document.querySelectorAll('.aff-'+key+'-titre').forEach((inp,i)=>{ if(saved[i]) inp.value=saved[i]; });
+    document.getElementById('aff-save-'+section).addEventListener('click',()=>{
+      const data = [...document.querySelectorAll('.aff-'+key+'-titre')].map(inp=>inp.value);
+      save('aff:'+section, data); showToast('Enregistré ✓','success');
+    });
+    signBlock('aff-sign-'+section);
+  });
+
+  // ---- 10. Tableau d'honneur ----
+  document.getElementById('aff-btn-gen-honneur').addEventListener('click',()=>{
+    const cls  = document.getElementById('aff-honneur-classe').value;
+    const mois = document.getElementById('aff-honneur-mois').value;
+    const evalD = load('registre:eval:'+cls+':'+mois, null);
+    const podium = document.getElementById('aff-honneur-podium');
+    const printBtn = document.getElementById('aff-btn-print-attestation');
+    if(!evalD || !evalD.notes){
+      podium.innerHTML='<p style="color:var(--muted);font-size:13px;">Aucune évaluation trouvée pour cette classe et ce mois.</p>';
+      printBtn.style.display='none'; return;
+    }
+    const elClass = dossier.filter(r=>classeFinale(r)===cls);
+    const scored = elClass.map(el=>{
+      let total=0;
+      REG_SUBJECTS.forEach(s=>{
+        const notes=evalD.notes[el.id]||{};
+        if(!s.cmcp){const v=parseFloat(notes[s.key]);if(!isNaN(v))total+=v;return;}
+        const cm=parseFloat(notes[s.key+'_cm']),cp=parseFloat(notes[s.key+'_cp']);
+        if(!isNaN(cm)) total+=cm>=(evalD.seuilCM||10)?cm+(isNaN(cp)?0:cp):cm;
+      });
+      return {el,total,moy20:(total/9).toFixed(2),moy10:(total/18).toFixed(2)};
+    }).filter(r=>evalD.aCompose?.[r.el.id]!==false).sort((a,b)=>b.total-a.total);
+
+    const medals=['🥇','🥈','🥉'];
+    const colors=['#FFD700','#C0C0C0','#CD7F32'];
+    podium.innerHTML = scored.slice(0,3).map((r,i)=>`
+      <div style="background:#fff;border:2px solid ${colors[i]};border-radius:12px;padding:16px;min-width:160px;text-align:center;flex:1;">
+        <div style="font-size:32px;margin-bottom:6px;">${medals[i]}</div>
+        <div style="font-size:11px;color:var(--muted);font-weight:700;">${i+1}${i===0?'er':i===1?'ème':'ème'} rang</div>
+        <div style="font-size:14px;font-weight:700;color:var(--ink);margin:4px 0;">${escapeHtml(r.el.nom)} ${escapeHtml(r.el.prenom)}</div>
+        <div style="font-size:12px;color:var(--muted);">Total : ${r.total.toFixed(1)}</div>
+        <div style="font-size:12px;color:var(--muted);">Moy. /20 : ${r.moy20}</div>
+        <div style="font-size:12px;color:var(--muted);">Moy. /10 : ${r.moy10}</div>
+      </div>`).join('');
+    printBtn.style.display='block';
+    printBtn.onclick=()=> printAttestations(scored.slice(0,3), cls, mois);
+    signBlock('aff-sign-honneur');
+  });
+
+  function printAttestations(top3, cls, mois){
+    const cachetImg = regCachetEcole.dataUrl ? `<img src="${regCachetEcole.dataUrl}" style="width:90px;opacity:.85;mix-blend-mode:multiply;transform:rotate(-4deg);">` : '';
+    const schoolNm  = load('schoolName', 'Mon École');
+    const medals    = ['1er','2ème','3ème'];
+    const win = window.open('','_blank');
+    win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8">
+      <title>Attestations — Tableau d'honneur</title>
+      <style>
+        body{font-family:Georgia,serif;margin:0;padding:0;}
+        .page{width:148mm;min-height:105mm;margin:0 auto 10mm;border:2px solid #1B2A4A;border-radius:6px;padding:14mm 12mm;page-break-after:always;position:relative;}
+        .header{text-align:center;border-bottom:1px solid #ccc;padding-bottom:8px;margin-bottom:12px;}
+        .school{font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:1px;}
+        .title{font-size:18px;font-weight:900;color:#1B2A4A;margin:8px 0 4px;text-transform:uppercase;letter-spacing:2px;}
+        .sub{font-size:11px;color:#666;}
+        .name{font-size:22px;font-weight:700;color:#C9A227;text-align:center;margin:12px 0 4px;}
+        .rank{font-size:14px;text-align:center;color:#1B2A4A;}
+        .details{font-size:11px;text-align:center;color:#555;margin-top:4px;}
+        .footer{display:flex;justify-content:space-between;align-items:flex-end;margin-top:16px;padding-top:10px;border-top:1px dashed #ccc;}
+        .sig{text-align:center;font-size:10px;color:#555;}
+        @media print{body{margin:0;}@page{size:A6 landscape;margin:5mm;}}
+      </style></head><body>
+      ${top3.map((r,i)=>`
+      <div class="page">
+        <div class="header">
+          <div class="school">${escapeHtml(schoolNm)}</div>
+          <div class="title">Attestation de mérite</div>
+          <div class="sub">Tableau d'honneur — ${escapeHtml(cls)} — ${escapeHtml(mois)}</div>
+        </div>
+        <div class="rank">Rang : <strong>${medals[i]}</strong></div>
+        <div class="name">${escapeHtml(r.el.nom)} ${escapeHtml(r.el.prenom)}</div>
+        <div class="details">Moyenne /20 : ${r.moy20} &nbsp;|&nbsp; Moyenne /10 : ${r.moy10} &nbsp;|&nbsp; Total : ${r.total.toFixed(1)}</div>
+        <div class="footer">
+          <div class="sig">La Directrice / Le Directeur<br><br>____________________</div>
+          <div>${cachetImg}</div>
+        </div>
+      </div>`).join('')}
+      </body></html>`);
+    win.document.close(); win.focus(); win.print();
+  }
+
+  // ---- 11. Calendrier ----
+  setupFileUpload('aff-calendrier-upload','aff-calendrier-preview','aff:calendrier','aff-save-calendrier');
+  signBlock('aff-sign-calendrier');
+
+  // ---- 12. Comité santé ----
+  const savedSante = load('aff:sante',[]);
+  document.querySelectorAll('.aff-sante-item').forEach((inp,i)=>{ if(savedSante[i]) inp.value=savedSante[i]; });
+  document.getElementById('aff-save-sante').addEventListener('click',()=>{
+    save('aff:sante',[...document.querySelectorAll('.aff-sante-item')].map(i=>i.value));
+    showToast('Comité santé enregistré ✓','success');
+  });
+  signBlock('aff-sign-sante');
+
+  // ---- 13. Mercuriale ----
+  let mercuData = load('aff:mercuriale',[]);
+  function renderMercuriale(){
+    const tbody=document.querySelector('#aff-table-mercuriale tbody'); tbody.innerHTML='';
+    mercuData.forEach((row,i)=>{
+      const tr=document.createElement('tr');
+      tr.innerHTML=`<td>${i+1}</td>
+        <td><input data-mi="${i}" data-mf="produit" value="${escapeHtml(row.produit||'')}" placeholder="Produit" style="width:100%;"></td>
+        <td><input data-mi="${i}" data-mf="unite" value="${escapeHtml(row.unite||'')}" placeholder="kg / L / pièce…" style="width:80px;"></td>
+        <td><input data-mi="${i}" data-mf="prix" type="number" value="${row.prix||''}" placeholder="Prix" style="width:90px;"></td>
+        <td><button class="btn danger btn-sm" data-mdel="${i}">✕</button></td>`;
+      tbody.appendChild(tr);
+    });
+    tbody.querySelectorAll('input').forEach(inp=>{
+      inp.addEventListener('input',()=>{ mercuData[inp.dataset.mi][inp.dataset.mf]=inp.value; });
+    });
+    tbody.querySelectorAll('[data-mdel]').forEach(btn=>{
+      btn.addEventListener('click',()=>{ mercuData.splice(parseInt(btn.dataset.mdel),1); renderMercuriale(); });
+    });
+  }
+  renderMercuriale();
+  document.getElementById('aff-btn-add-mercu').addEventListener('click',()=>{
+    mercuData.push({produit:'',unite:'',prix:''}); renderMercuriale();
+  });
+  document.getElementById('aff-save-mercuriale').addEventListener('click',()=>{
+    save('aff:mercuriale',mercuData); showToast('Mercuriale enregistrée ✓','success');
+  });
+  signBlock('aff-sign-mercuriale');
+
+  // ---- 14. Planification ----
+  document.getElementById('aff-btn-gen-planif').addEventListener('click', affGenPlanif);
+
+  // ---- 15. Carte scolaire ----
+  document.getElementById('aff-btn-gen-cartes').addEventListener('click', affGenCartes);
+  // Reload photos from storage
+  affCartePhotos = load('aff:carte:photos', {});
+}
+
+/* ===================== Planification intégrée ===================== */
+const AFF_PLANIF_DATA = {"CE1": {"Septembre": [{"du": "28/09/2026", "au": "02/10/2026", "francais": ["Planification des apprentissages de la période d’étude des diphtongues (1ère semaine).", "Communication orale : Je raconte au", "Etude des diphtongues : J’apprends à"], "maths": []}], "Octobre": [{"du": "05/10/2026", "au": "09/10/2026", "francais": ["Planification des apprentissages de la période d’étude des diphtongues (2ème semaine).", "Communication orale : Je discute avec", "Etude des diphtongues : J’apprends à"], "maths": []}, {"du": "12/10/2026", "au": "16/10/2026", "francais": ["Planification des apprentissages de la période d’étude des diphtongues (3ème semaine).", "Communication orale : Je raconte au", "Etude des diphtongues : J’apprends à"], "maths": []}, {"du": "19/10/2026", "au": "23/10/2026", "francais": ["Planification des apprentissages de la période d’étude des diphtongues (4ème semaine).", "Communication orale : Je raconte au", "Etude des diphtongues : J’apprends à"], "maths": []}, {"du": "26/10/2026", "au": "30/10/2026", "francais": ["Vocabulaire thématique : L’homme et", "Expression écrite : (imprégnation) Une"], "maths": []}], "Novembre": [{"du": "02/11/2026", "au": "06/11/2026", "francais": ["Communication orale : Je dis ce que je", "Vocabulaire systématique: L’homme et"], "maths": []}, {"du": "09/11/2026", "au": "13/11/2026", "francais": ["Communication orale : J’échange", "Expression écrite: (‘imprégnation) La"], "maths": []}, {"du": "16/11/2026", "au": "20/11/2026", "francais": ["Communication orale : Je présente", "Vocabulaire systématique: L’homme et"], "maths": []}, {"du": "23/11/2026", "au": "27/11/2026", "francais": ["Vocabulaire thématique :", "Communication orale :J’échange avec", "Expression écrite1 : (imprégnation) La"], "maths": []}], "Décembre": [{"du": "30/11/2026", "au": "04/12/2026", "francais": ["Communication orale : Je dis ce qu’il", "Vocabulaire systématique:"], "maths": []}, {"du": "07/12/2026", "au": "11/12/2026", "francais": ["Communication orale : Je dis à mes", "Expression écrite1: (‘imprégnation) La"], "maths": []}, {"du": "14/12/2026", "au": "18/12/2026", "francais": ["Communication orale : Je parle de ce", "Vocabulaire systématique:"], "maths": []}], "Janvier": [{"du": "21/12/2026", "au": "25/12/2026", "francais": ["Vocabulaire thématique : L’enfant et", "Expression écrite1 : (imprégnation)"], "maths": []}, {"du": "28/12/2026", "au": "01/01/2027", "francais": ["Communication orale : Je joue à", "Vocabulaire systématique: L’enfant et"], "maths": []}, {"du": "04/01/2027", "au": "08/01/2027", "francais": ["Communication orale : J’échange avec", "Expression écrite: (‘imprégnation)"], "maths": []}, {"du": "11/01/2027", "au": "15/01/2027", "francais": ["Communication orale : Je dis à mes", "Vocabulaire systématique: L’enfant et"], "maths": []}], "Février": [{"du": "18/01/2027", "au": "22/01/2027", "francais": ["Vocabulaire thématique : Les droits", "Expression écrite1 : (imprégnation)"], "maths": []}, {"du": "25/01/2027", "au": "29/01/2027", "francais": ["Communication orale : J’échange sur la", "Vocabulaire systématique: Les droits et"], "maths": []}, {"du": "01/02/2027", "au": "05/02/2027", "francais": ["Vocabulaire thématique : La famille", "Lecture silencieuse1: De bonnes", "Expression écrite1 : (imprégnation)"], "maths": []}, {"du": "08/02/2027", "au": "12/02/2027", "francais": ["Communication orale : J’échange avec", "Vocabulaire systématique: La famille"], "maths": []}], "Mars": [{"du": "15/02/2027", "au": "19/02/2027", "francais": ["Communication orale : Je raconte à", "Lecture silencieuse1 : En route pour", "Expression écrite: (‘imprégnation)", "Lecture silencieuse2: En route pour Pira."], "maths": []}, {"du": "22/02/2027", "au": "26/02/2027", "francais": ["Communication orale : Demander une", "Lecture silencieuse2 :Les potières de Sè."], "maths": []}, {"du": "01/03/2027", "au": "05/03/2027", "francais": ["Communication orale : Je parle des", "Lecture silencieuse1 : Une famille de", "Expression écrite: (‘imprégnation)", "Lecture silencieuse2: Une famille de"], "maths": []}, {"du": "08/03/2027", "au": "12/03/2027", "francais": ["Communication orale : Je dis ce que je", "Orthographe : Les mots de la même"], "maths": []}], "Avril": [{"du": "15/03/2027", "au": "19/03/2027", "francais": ["Vocabulaire thématique : Le", "Lecture silencieuse1: L’arbre", "Expression écrite1 : (imprégnation)", "Expression écrite2 : (1er jet) J’écris une", "Dictée : J’écris sous la dictée un texte."], "maths": []}, {"du": "22/03/2027", "au": "26/03/2027", "francais": ["Communication orale : Je parle de ma", "Vocabulaire systématique: Le", "Orthographe : Dictée lacunaire.", "Dictée : J’écris sous la dictée un texte.", "Ecriture1 : Le tracé de Q q Q q"], "maths": []}, {"du": "29/03/2027", "au": "02/04/2027", "francais": ["Vocabulaire thématique : Les", "Lecture silencieuse1: Que fait-on au", "Expression écrite1 : (imprégnation)", "Expression écrite2 : (1er jet) Je", "Dictée : J’écris sous la dictée un texte."], "maths": []}], "Mai": [{"du": "05/04/2027", "au": "09/04/2027", "francais": ["Communication orale : Je discute des", "Lecture silencieuse2 : A Achabita", "Dictée : J’écris sous la dictée un texte.", "Ecriture1 : Le tracé de U u U u", "Expression écrite3: M"], "maths": []}, {"du": "12/04/2027", "au": "16/04/2027", "francais": [], "maths": []}, {"du": "19/04/2027", "au": "23/04/2027", "francais": [], "maths": []}, {"du": "26/04/2027", "au": "30/04/2027", "francais": [], "maths": []}], "Juin": [{"du": "03/05/2027", "au": "07/05/2027", "francais": [], "maths": []}, {"du": "10/05/2027", "au": "14/05/2027", "francais": [], "maths": []}]}, "CE2": {"Septembre": [{"du": "28/09/2026", "au": "02/10/2026", "francais": ["Vocabulaire thématique : L’homme et", "Expression écrite1 : (imprégnation)"], "maths": []}], "Octobre": [{"du": "05/10/2026", "au": "09/10/2026", "francais": ["Communication orale : J’explique la", "Lecture silencieuse1 : L’entretien des", "Vocabulaire systématique: L’homme et", "Lecture silencieuse2 : L’entretien des"], "maths": []}, {"du": "12/10/2026", "au": "16/10/2026", "francais": ["Communication orale : Je parle d’un", "Lecture silencieuse2: Les mouches."], "maths": []}, {"du": "19/10/2026", "au": "23/10/2026", "francais": ["Communication orale : Je justifie mon", "Vocabulaire systématique: L’homme et", "Lecture silencieuse2 : A malin malin et"], "maths": []}, {"du": "26/10/2026", "au": "30/10/2026", "francais": ["Vocabulaire thématique :", "Communication orale : Je parle à mes", "Expression écrite1 : (imprégnation)"], "maths": []}], "Novembre": [{"du": "02/11/2026", "au": "06/11/2026", "francais": ["Communication orale : Je parle à mes", "Lecture silencieuse2 : Une pluie tant"], "maths": []}, {"du": "09/11/2026", "au": "13/11/2026", "francais": ["Communication orale : Je discute", "Expression écrite1: (‘imprégnation)"], "maths": []}, {"du": "16/11/2026", "au": "20/11/2026", "francais": ["Communication orale : J’échange avec", "Lecture silencieuse1 : Le margouillard", "Vocabulaire systématique", "Lecture silencieuse2 : Le margouillard"], "maths": []}, {"du": "23/11/2026", "au": "27/11/2026", "francais": ["Communication orale : Je discute de", "Expression écrite1: (‘imprégnation)", "Lecture silencieuse2: Lettre à un"], "maths": []}], "Décembre": [{"du": "30/11/2026", "au": "04/12/2026", "francais": ["Communication orale : Je parle de"], "maths": []}, {"du": "07/12/2026", "au": "11/12/2026", "francais": ["Vocabulaire thématique : L’enfant et", "Communication orale : Retiens avec tes", "Lecture silencieuse1: L’histoire de la", "Expression écrite1 : (imprégnation)"], "maths": []}, {"du": "14/12/2026", "au": "18/12/2026", "francais": ["Communication orale : Tu veux", "Vocabulaire systématique: L’enfant et"], "maths": []}], "Janvier": [{"du": "21/12/2026", "au": "25/12/2026", "francais": ["Vocabulaire thématique : Les droits et", "Lecture silencieuse1: Une bonne leçon.", "Expression écrite1 : (imprégnation)", "Lecture silencieuse2: Une bonne leçon."], "maths": []}, {"du": "28/12/2026", "au": "01/01/2027", "francais": ["Communication orale : Je fais part de", "Vocabulaire systématique: Les droits et"], "maths": []}, {"du": "04/01/2027", "au": "08/01/2027", "francais": ["Vocabulaire thématique : La famille et", "Lecture silencieuse1: Le billet de cinq", "Expression écrite1 : (imprégnation)"], "maths": []}, {"du": "11/01/2027", "au": "15/01/2027", "francais": ["Communication orale : J’échange avec", "Vocabulaire systématique: La famille"], "maths": []}], "Février": [{"du": "18/01/2027", "au": "22/01/2027", "francais": ["Communication orale : Je tente de", "Expression écrite1: (imprégnation)"], "maths": []}, {"du": "25/01/2027", "au": "29/01/2027", "francais": ["Communication orale : Je parle à mes"], "maths": []}, {"du": "01/02/2027", "au": "05/02/2027", "francais": ["Vocabulaire thématique : Le", "Expression écrite1 : (imprégnation)"], "maths": []}, {"du": "08/02/2027", "au": "12/02/2027", "francais": ["Communication orale : Je dis à quelle", "Vocabulaire systématique: Le"], "maths": []}], "Mars": [{"du": "15/02/2027", "au": "19/02/2027", "francais": ["Communication orale : Je dis à mes", "Lecture silencieuse1 : Un filet", "Expression écrite1: (imprégnation)", "Lecture silencieuse2: Un filet"], "maths": []}, {"du": "22/02/2027", "au": "26/02/2027", "francais": ["Communication orale : Présente à tes", "Vocabulaire systématique: Le"], "maths": []}, {"du": "01/03/2027", "au": "05/03/2027", "francais": ["Vocabulaire thématique : Les", "Expression écrite1 : (imprégnation)"], "maths": []}, {"du": "08/03/2027", "au": "12/03/2027", "francais": ["Communication orale : Le groupe-", "Vocabulaire systématique: Les"], "maths": []}], "Avril": [{"du": "15/03/2027", "au": "19/03/2027", "francais": [], "maths": []}, {"du": "22/03/2027", "au": "26/03/2027", "francais": [], "maths": []}, {"du": "29/03/2027", "au": "02/04/2027", "francais": [], "maths": []}], "Mai": [{"du": "05/04/2027", "au": "09/04/2027", "francais": [], "maths": []}, {"du": "12/04/2027", "au": "16/04/2027", "francais": [], "maths": []}, {"du": "19/04/2027", "au": "23/04/2027", "francais": [], "maths": []}, {"du": "26/04/2027", "au": "30/04/2027", "francais": [], "maths": []}], "Juin": [{"du": "03/05/2027", "au": "07/05/2027", "francais": [], "maths": []}, {"du": "10/05/2027", "au": "14/05/2027", "francais": [], "maths": []}]}, "CM1": {"Septembre": [{"du": "28/09/2026", "au": "02/10/2026", "francais": ["Vocabulaire thématique : L’homme et", "Dictée : J’écris sous la dictée un texte.", "Expression écrite1 : (Imprégnation)"], "maths": []}], "Octobre": [{"du": "05/10/2026", "au": "09/10/2026", "francais": ["Communication orale : Je parle de mon", "Lecture silencieuse : Tayé lance un", "Vocabulaire systématique : L’homme", "Grammaire: La phrase simple, la phrase"], "maths": []}, {"du": "12/10/2026", "au": "16/10/2026", "francais": ["Communication orale : Je dis pourquoi", "Dictée : J’écris sous la dictée un texte.", "Expression écrite1 : (Imprégnation)", "Expression écrite2: (1er jet) Je rédige"], "maths": []}, {"du": "19/10/2026", "au": "23/10/2026", "francais": ["Communication orale : J’échange avec", "Dictée : J’écris sous la dictée un texte.", "Vocabulaire systématique : L’homme", "Grammaire: Bilan."], "maths": []}, {"du": "26/10/2026", "au": "30/10/2026", "francais": ["Vocabulaire thématique :", "Dictée : J’écris sous la dictée un texte.", "Expression écrite1 : (Imprégnation)"], "maths": []}], "Novembre": [{"du": "02/11/2026", "au": "06/11/2026", "francais": ["Communication orale : Je discute avec", "Dictée : J’écris sous la dictée un texte.", "Vocabulaire systématique :"], "maths": []}, {"du": "09/11/2026", "au": "13/11/2026", "francais": ["Communication orale : J’explique à", "Dictée : J’écris sous la dictée un texte.", "Expression écrite1 : (Imprégnation)"], "maths": []}, {"du": "16/11/2026", "au": "20/11/2026", "francais": ["Communication orale : J’explique à", "Dictée : J’écris sous la dictée un texte.", "Vocabulaire systématique :"], "maths": []}, {"du": "23/11/2026", "au": "27/11/2026", "francais": ["Vocabulaire thématique : L’enfant et", "Lecture silencieuse : Le cadeau de", "Dictée : J’écris sous la dictée un texte.", "Expression écrite1 : (Imprégnation)"], "maths": []}], "Décembre": [{"du": "30/11/2026", "au": "04/12/2026", "francais": ["Communication orale : Après avoir", "Dictée : J’écris sous la dictée un texte.", "Vocabulaire systématique : L’enfant et"], "maths": []}, {"du": "07/12/2026", "au": "11/12/2026", "francais": ["Communication orale : J’analyse la", "Dictée : J’écris sous la dictée un texte.", "Expression écrite1 : (Imprégnation)"], "maths": []}, {"du": "14/12/2026", "au": "18/12/2026", "francais": ["Communication orale : Je participe à la", "Dictée : J’écris sous la dictée un texte.", "Vocabulaire systématique : Les droits"], "maths": []}], "Janvier": [{"du": "21/12/2026", "au": "25/12/2026", "francais": ["Communication orale : Je participe à", "Dictée : J’écris sous la dictée un texte.", "Expression écrite1 : (Imprégnation)", "Expression écrite2: (1er jet) Je rédige"], "maths": []}, {"du": "28/12/2026", "au": "01/01/2027", "francais": ["Communication orale : Je participe à", "Dictée : J’écris sous la dictée un texte.", "Vocabulaire systématique : Les droits"], "maths": []}, {"du": "04/01/2027", "au": "08/01/2027", "francais": ["Vocabulaire thématique : La famille", "Dictée : J’écris sous la dictée un texte.", "Expression écrite1 : (Imprégnation)"], "maths": []}, {"du": "11/01/2027", "au": "15/01/2027", "francais": ["Communication orale : Je donne mon", "Lecture silencieuse : Je fais un métier", "Dictée : J’écris sous la dictée un texte.", "Vocabulaire systématique : la famille et Titre : …………………..", "Grammaire: Le plurie"], "maths": []}], "Février": [{"du": "18/01/2027", "au": "22/01/2027", "francais": ["Communication orale : Mes", "Dictée : J’écris sous la dictée un texte.", "Expression écrite1 : (Imprégnation)", "Expression écrite2: (1er"], "maths": []}, {"du": "25/01/2027", "au": "29/01/2027", "francais": ["Communication orale : Je raconte à", "Lecture silencieuse : Sauce d’amande", "Dictée : J’écris sous la dictée un texte.", "Vocabulaire systématique : la famille et", "Grammaire: Bilan (le pluriel des noms"], "maths": []}, {"du": "01/02/2027", "au": "05/02/2027", "francais": ["Communication orale : Je", "Dictée : J’écris sous la dictée un texte.", "Expression écrite1 : (Imprégnation)", "Expression écrite2: (1er jet) Ton"], "maths": []}, {"du": "08/02/2027", "au": "12/02/2027", "francais": ["Communication orale : Je recherche au", "Lecture silencieuse : As-tu l’esprit de", "Dictée : J’écris sous la dictée un texte.", "Vocabulaire théorique : la famille et le", "Grammaire: Bilan (phrase simple,"], "maths": []}], "Mars": [{"du": "15/02/2027", "au": "19/02/2027", "francais": ["Vocabulaire thématique : Le", "Dictée : J’écris sous la dictée un texte.", "Expression écrite1 : (Imprégnation)", "Expression écrite2: (1er jet) Je rédige à"], "maths": []}, {"du": "22/02/2027", "au": "26/02/2027", "francais": ["Communication orale : J’échange avec", "Lecture silencieuse : Proverbes et", "Dictée : J’écris sous la dictée un texte.", "Vocabulaire systématique : Le", "Grammaire: Bilan : le complément"], "maths": []}, {"du": "01/03/2027", "au": "05/03/2027", "francais": ["Vocabulaire thématique : La vie des", "Dictée : J’écris sous la dictée un texte.", "Expression écrite1 : (Imprégnation)", "Expression écrite2: (1er jet) Je rédige", "Ecriture1 : Le tracé de W w W w,"], "maths": []}, {"du": "08/03/2027", "au": "12/03/2027", "francais": ["Communication orale : J’organise un", "Dictée : J’écris sous la dictée un texte.", "Vocabulaire systématique : La vie des", "Grammaire: Bilan", "Conjugaison : Les verbes pronominaux"], "maths": []}], "Avril": [{"du": "15/03/2027", "au": "19/03/2027", "francais": [], "maths": []}, {"du": "22/03/2027", "au": "26/03/2027", "francais": [], "maths": []}, {"du": "29/03/2027", "au": "02/04/2027", "francais": [], "maths": []}], "Mai": [{"du": "05/04/2027", "au": "09/04/2027", "francais": [], "maths": []}, {"du": "12/04/2027", "au": "16/04/2027", "francais": [], "maths": []}, {"du": "19/04/2027", "au": "23/04/2027", "francais": [], "maths": []}, {"du": "26/04/2027", "au": "30/04/2027", "francais": [], "maths": []}], "Juin": [{"du": "03/05/2027", "au": "07/05/2027", "francais": [], "maths": []}, {"du": "10/05/2027", "au": "14/05/2027", "francais": [], "maths": []}]}, "CM2": {"Septembre": [{"du": "28/09/2026", "au": "02/10/2026", "francais": ["Vocabulaire thématique : L’ homme", "Expression écrite1 : (Imprégnation)", "Expression écrite2: (1er jet) Je fais le"], "maths": []}], "Octobre": [{"du": "05/10/2026", "au": "09/10/2026", "francais": ["Communication orale : Je parle de mon", "Vocabulaire systématique : L’homme", "Grammaire: La ponctuation : le point,"], "maths": []}, {"du": "12/10/2026", "au": "16/10/2026", "francais": ["Communication orale1 : Je", "Dictée : J’écris sous la dictée un texte.", "Communication orale2: (1er jet) Je"], "maths": []}, {"du": "19/10/2026", "au": "23/10/2026", "francais": ["Orthographe : Graphie des homophones", "Dictée : J’écris sous la dictée un texte.", "Grammaire : Phrase nominale et phrase"], "maths": []}, {"du": "26/10/2026", "au": "30/10/2026", "francais": ["Vocabulaire thématique :", "Lecture silencieuse : La distraction de", "Dictée : J’écris sous la dictée un texte.", "Expression écrite1 : (Imprégnation)", "Expression écrite2: (1er jet) Je rédige"], "maths": []}], "Novembre": [{"du": "02/11/2026", "au": "06/11/2026", "francais": ["Communication orale : Je développe", "Dictée : J’écris sous la dictée un texte.", "Vocabulaire systématique :"], "maths": []}, {"du": "09/11/2026", "au": "13/11/2026", "francais": ["Communication orale : Je parle de la", "Dictée : J’écris sous la dictée un texte.", "Expression écrite1 : (Imprégnation)"], "maths": []}, {"du": "16/11/2026", "au": "20/11/2026", "francais": ["Communication orale : J’échange avec", "Vocabulaire systématique :"], "maths": []}, {"du": "23/11/2026", "au": "27/11/2026", "francais": ["Vocabulaire thématique : L’enfant et", "Dictée : J’écris sous la dictée un texte.", "Expression écrite1 : (Imprégnation)"], "maths": []}], "Décembre": [{"du": "30/11/2026", "au": "04/12/2026", "francais": ["Communication orale : Parle des", "Dictée : J’écris sous la dictée un texte.", "Vocabulaire systématique : L’enfant et", "Grammaire: Accord du verbe avec son"], "maths": []}, {"du": "07/12/2026", "au": "11/12/2026", "francais": ["Vocabulaire thématique : Les droits", "Dictée : J’écris sous la dictée un texte.", "Expression écrite1 : (Imprégnation)"], "maths": []}, {"du": "14/12/2026", "au": "18/12/2026", "francais": ["Communication orale : Je trouve des", "Lecture silencieuse : Le petit orphelin.", "Dictée : J’écris sous la dictée un texte.", "Vocabulaire systématique : Les droits"], "maths": []}], "Janvier": [{"du": "21/12/2026", "au": "25/12/2026", "francais": ["Communication orale : J’expose une", "Dictée : J’écris sous la dictée un texte.", "Expression écrite1 : (Imprégnation)"], "maths": []}, {"du": "28/12/2026", "au": "01/01/2027", "francais": ["Communication orale : J’expose une", "Dictée : J’écris sous la dictée un texte.", "Vocabulaire systématique : Les droits"], "maths": []}, {"du": "04/01/2027", "au": "08/01/2027", "francais": ["Vocabulaire thématique : La famille", "Dictée : J’écris sous la dictée un texte.", "Expression écrite1 : (Imprégnation)"], "maths": []}, {"du": "11/01/2027", "au": "15/01/2027", "francais": ["Communication orale : Je discute avec", "Dictée : J’écris sous la dictée un texte.", "Vocabulaire systématique : Le famille"], "maths": []}], "Février": [{"du": "18/01/2027", "au": "22/01/2027", "francais": ["Communication orale: Je rapporte les", "Dictée : J’écris sous la dictée un texte.", "Expression écrite1 : (Imprégnation)"], "maths": []}, {"du": "25/01/2027", "au": "29/01/2027", "francais": ["Communication orale : J’échange avec", "Dictée : J’écris sous la dictée un texte.", "Vocabulaire systématique : Le famille", "Grammaire: Les compléments", "Conjugaison : Utilisation d"], "maths": []}, {"du": "01/02/2027", "au": "05/02/2027", "francais": ["Vocabulaire thématique: Le", "Dictée : J’écris sous la dictée un texte.", "Expression écrite1 : (Imprégnation)", "Expression écrite2: (1er jet) Je rédige"], "maths": []}, {"du": "08/02/2027", "au": "12/02/2027", "francais": ["Communication orale : J’expose une", "Dictée : J’écris sous la dictée un texte.", "Vocabulaire systématique : Le", "Grammaire: La proposition", "Conjugaison : Emploi du présent de"], "maths": []}], "Mars": [{"du": "15/02/2027", "au": "19/02/2027", "francais": ["Vocabulaire thématique: La vie des", "Dictée : J’écris sous la dictée un texte.", "Expression écrite1 : (Imprégnation)", "Expression écrite2: (1er jet) Je rédige à", "Ecriture : Le tracé de U u U u, V"], "maths": []}, {"du": "22/02/2027", "au": "26/02/2027", "francais": ["Communication orale : Je rends compte", "Dictée : J’écris sous la dictée un texte.", "Vocabulaire systématique : La vie des", "Conjugaison : Emploi du mode indicatif"], "maths": []}, {"du": "01/03/2027", "au": "05/03/2027", "francais": ["Communication orale: Bientôt le", "Dictée : J’écris sous la dictée un texte.", "Expression écrite1 : (Imprégnation)", "Expression écrite2: (1er jet) J’écris une", "Ecriture : Le tracé de W w W w,"], "maths": []}, {"du": "08/03/2027", "au": "12/03/2027", "francais": ["Communication orale : Présente à tes", "Dictée : J’écris sous la dictée un texte.", "Vocabulaire systématique : La vie des", "Conjugaison : ………………………."], "maths": []}], "Avril": [{"du": "15/03/2027", "au": "19/03/2027", "francais": [], "maths": []}, {"du": "22/03/2027", "au": "26/03/2027", "francais": [], "maths": []}, {"du": "29/03/2027", "au": "02/04/2027", "francais": [], "maths": []}], "Mai": [{"du": "05/04/2027", "au": "09/04/2027", "francais": [], "maths": []}, {"du": "12/04/2027", "au": "16/04/2027", "francais": [], "maths": []}, {"du": "19/04/2027", "au": "23/04/2027", "francais": [], "maths": []}, {"du": "26/04/2027", "au": "30/04/2027", "francais": [], "maths": []}], "Juin": [{"du": "03/05/2027", "au": "07/05/2027", "francais": [], "maths": []}, {"du": "10/05/2027", "au": "14/05/2027", "francais": [], "maths": []}]}};
+const AFF_MATIERES_PLANIF = [
+  {id:'francais', label:'FRANÇAIS', color:'#D6EAF8', rows:[
+    {id:'co',label:'Communication Orale'},{id:'lecture',label:'Lecture'},
+    {id:'exp_ecrite',label:'Expression Écrite'},{id:'vocabulaire',label:'Vocabulaire'},
+    {id:'grammaire',label:'Grammaire'},{id:'conjugaison',label:'Conjugaison'},
+    {id:'orthographe',label:'Orthographe / Dictée'},{id:'ecriture',label:'Écriture'},
+  ]},
+  {id:'maths', label:'MATHÉMATIQUES', color:'#D5F5E3', rows:[{id:'maths_c',label:'D…SA…Séances N°…'}]},
+  {id:'ed_sociale', label:'ÉDUCATION SOCIALE', color:'#FDEBD0', rows:[
+    {id:'morale',label:'Morale / Langue'},{id:'civisme',label:'Civisme'},
+    {id:'histoire',label:'Histoire'},{id:'geo',label:'Géographie'},
+  ]},
+  {id:'est', label:'ÉDUCATION SCIENTIFIQUE & TECHNO.', color:'#E8DAEF', rows:[{id:'est_c',label:'SA… Séquence…'}]},
+  {id:'ea', label:'ÉDUCATION ARTISTIQUE', color:'#FDFBD6', rows:[
+    {id:'chant',label:'Chant'},{id:'poesie',label:'Poésie'},
+    {id:'dessin',label:'Dessin'},{id:'contes',label:'Contes'},{id:'couture',label:'Couture'},
+  ]},
+  {id:'eps', label:'ÉDUCATION PHYSIQUE & SPORTIVE', color:'#D6EAF8', rows:[{id:'eps_c',label:'SA… Séquence…'}]},
+];
+const AFF_MOIS_WEEKS = {Septembre:1,Octobre:4,Novembre:4,Décembre:3,Janvier:4,Février:4,Mars:4,Avril:3,Mai:4,Juin:2};
+
+function affPlanifKey(cls,mois,week,row){ return `aff:planif:${cls}:${mois}:w${week}:${row}`; }
+function affPlanifGetVal(cls,mois,week,row){ return localStorage.getItem('monecole:'+affPlanifKey(cls,mois,week,row))||''; }
+function affPlanifSetVal(cls,mois,week,row,val){ localStorage.setItem('monecole:'+affPlanifKey(cls,mois,week,row),val); }
+
+function affPlanifSuggestion(cls,mois,weekIdx,rowId){
+  const weeks=(AFF_PLANIF_DATA[cls]&&AFF_PLANIF_DATA[cls][mois])||[];
+  const w=weeks[weekIdx]||{};
+  const fr=w.francais||[];
+  // Mots-clés par ligne — cherche TOUS les items correspondants, pas juste le premier
+  const kw={
+    co:['Communication orale','Communication'],
+    lecture:['Lecture silencieuse','Lecture orale','Lecture libre','Lecture renf'],
+    exp_ecrite:['Expression écrite','Exp Ecrite','Expression écrite1','Expression écrite2'],
+    vocabulaire:['Vocabulaire thématique','Vocabulaire systématique','Vocabulaire fonct'],
+    grammaire:['Grammaire','Orthographe : Graphie','Phrase nominale'],
+    conjugaison:['Conjugaison'],
+    orthographe:['Orthographe','Dictée'],
+    ecriture:['Ecriture','Tracé'],
+    maths_c:[], est_c:[], eps_c:[], morale:[], civisme:[], histoire:[], geo:[], chant:[], poesie:[], dessin:[], contes:[], couture:[]
+  };
+  if(rowId==='maths_c') return (w.maths||[]).join(' | ');
+  const keys=kw[rowId]||[];
+  if(!keys.length) return '';
+  const found=fr.filter(f=>keys.some(k=>f.includes(k)));
+  return found.join(' / ');
+}
+
+function affGenPlanif(){
+  const cls=document.getElementById('aff-planif-classe').value;
+  const mois=document.getElementById('aff-planif-mois').value;
+  const nbW=AFF_MOIS_WEEKS[mois]||4;
+  const weeks=(AFF_PLANIF_DATA[cls]&&AFF_PLANIF_DATA[cls][mois])||[];
+  const ddemp=load('aff:planif:ddemp','')||'';
+  const cs=load('aff:planif:cs','')||'';
+  const ecole=schoolName||'';
+
+  let weekHeaders='';
+  for(let w=0;w<nbW;w++){
+    const wk=weeks[w]||{};
+    weekHeaders+=`<th class="sem">${w+1}<sup>e</sup> Semaine<br><span style="font-size:8px;font-weight:400;">${wk.du||'du …'} au ${wk.au||'…'}</span></th>`;
+  }
+
+  let bodyRows='';
+  AFF_MATIERES_PLANIF.forEach(mat=>{
+    mat.rows.forEach((row,ri)=>{
+      bodyRows+='<tr>';
+      if(ri===0) bodyRows+=`<td class="mat" rowspan="${mat.rows.length}" style="background:${mat.color};writing-mode:vertical-rl;transform:rotate(180deg);text-align:center;width:22px;">${mat.label}</td>`;
+      bodyRows+=`<td class="sub">${row.label}</td>`;
+      for(let w=0;w<nbW;w++){
+        const sug=affPlanifSuggestion(cls,mois,w,row.id);
+        const saved=affPlanifGetVal(cls,mois,w,row.id);
+        const val=saved||sug;
+        bodyRows+=`<td><input data-pc="${cls}" data-pm="${mois}" data-pw="${w}" data-pr="${row.id}" value="${escapeHtml(val)}" placeholder="…" class="${(!saved&&sug)?'aff-planif-auto':''}"></td>`;
+      }
+      bodyRows+='</tr>';
+    });
+  });
+
+  const noteSpec=mois==='Septembre'?
+    '<div class="reg-info" style="margin-bottom:8px;">ℹ️ Pré-rentrée 07/09 · Diagnostic 14/09 · Résultats 21/09 · Planification commence le 28/09.</div>':'';
+
+  document.getElementById('aff-planif-output').innerHTML=`
+    <div class="aff-planif-header">
+      <div class="memp">Ministère des Enseignements Maternels et Primaires (MEMP)</div>
+      <div class="aff-planif-fields">
+        <div class="aff-planif-field"><label>DDEMP</label><input id="aff-pl-ddemp" value="${escapeHtml(ddemp)}" placeholder="À compléter…"></div>
+        <div class="aff-planif-field"><label>CS</label><input id="aff-pl-cs" value="${escapeHtml(cs)}" placeholder="À compléter…"></div>
+        <div class="aff-planif-field"><label>École</label><input id="aff-pl-ecole" value="${escapeHtml(ecole)}" readonly></div>
+        <div class="aff-planif-field"><label>Cours</label><input value="${cls}" readonly></div>
+      </div>
+    </div>
+    <div style="font-weight:700;font-size:12px;background:#1B2A4A;color:#fff;padding:6px 10px;border-radius:6px;margin-bottom:8px;">
+      PLANIFICATION (CE-CM) DU MOIS DE : ${mois.toUpperCase()} 2026–2027
+    </div>
+    ${noteSpec}
+    <div class="reg-scroll">
+      <table class="aff-planif-tbl">
+        <thead><tr><th colspan="2">CHAMPS DE FORMATION</th>${weekHeaders}</tr></thead>
+        <tbody>${bodyRows}</tbody>
+      </table>
+    </div>`;
+
+  // Wire admin inputs
+  document.getElementById('aff-pl-ddemp').addEventListener('input',e=>save('aff:planif:ddemp',e.target.value));
+  document.getElementById('aff-pl-cs').addEventListener('input',e=>save('aff:planif:cs',e.target.value));
+  // Wire content inputs
+  document.querySelectorAll('#aff-planif-output input[data-pc]').forEach(inp=>{
+    inp.addEventListener('input',()=>{ inp.classList.remove('aff-planif-auto'); affPlanifSetVal(inp.dataset.pc,inp.dataset.pm,parseInt(inp.dataset.pw),inp.dataset.pr,inp.value); });
+  });
+  signBlock('aff-sign-planif');
+  showToast('Planification générée ✓','success');
+}
+
+/* ===================== Carte scolaire intégrée ===================== */
+
+function escCarte(v){ return (v===undefined||v===null)?'':String(v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+function buildCisRecto(el,logo,annee){
+  const logoHTML=logo
+    ?`<div class="cis-r-logo"><img src="${logo}" alt="logo"></div>`
+    :`<div class="cis-r-logo" style="font-size:20px;">🕊️</div>`;
+  const photoHTML=affCartePhotos[el.id]
+    ?`<img src="${affCartePhotos[el.id]}">`
+    :`<div class="cis-r-photo-ph">PHOTO</div>`;
+  const cls=classeFinale(el)||'';
+  const ddempText=load('aff:planif:ddemp','')||'Direction Départementale des Enseignements Maternel et Primaire de l\'Atlantique';
+  const regionText='REGION PÉDAGOGIQUE N°10 (OUIDAH)';
+  return `<div class="cis-recto">
+    <div class="cis-r-top">
+      <div class="cis-r-flag"><div class="cis-r-flag-g"></div><div class="cis-r-flag-y"></div><div class="cis-r-flag-r"></div></div>
+      <div class="cis-r-header">
+        <div class="cis-r-rep">République du Bénin</div>
+        <div class="cis-r-ddep">Direction Départementale des Enseignements<br>Maternel et Primaire de l'Atlantique</div>
+        <div class="cis-r-region">Région Pédagogique N°10 (Ouidah)</div>
+      </div>
+      ${logoHTML}
+    </div>
+    <div class="cis-r-ecole">
+      <div class="cis-r-ecole-type">École Primaire Privée</div>
+      <div class="cis-r-ecole-nom">&laquo; ${escapeHtml(schoolName)||'GRÂCES DIVINES'} &raquo;</div>
+    </div>
+    <div class="cis-r-adresse">${escapeHtml(load('schoolAddress','')||'Sise à Pahou')}</div>
+    <div class="cis-r-titre">Carte d'Identité Scolaire : ${escapeHtml(annee||'2026-2027')}</div>
+    <div class="cis-r-body">
+      <div class="cis-r-fields">
+        <div class="cis-r-field"><span class="cis-r-field-label">Nom</span><span class="cis-r-field-val">${escapeHtml(el.nom||'')}</span></div>
+        <div class="cis-r-field"><span class="cis-r-field-label">Prénoms</span><span class="cis-r-field-val">${escapeHtml(el.prenom||'')}</span></div>
+        <div class="cis-r-field"><span class="cis-r-field-label">Sexe</span><span class="cis-r-field-val">${el.sexe==='F'?'Féminin':'Masculin'}</span></div>
+        <div class="cis-r-field"><span class="cis-r-field-label">Né(e) le</span><span class="cis-r-field-val">${escapeHtml(el.ddn||el.age||'')} à ${escapeHtml(el.lieu||'')}</span></div>
+        <div class="cis-r-field"><span class="cis-r-field-label">Classe</span><span class="cis-r-field-val">${escapeHtml(cls)}</span></div>
+        <div class="cis-r-field"><span class="cis-r-field-label">N°</span><span class="cis-r-field-val">${escapeHtml(el.matricule||el.id.slice(-6))}</span></div>
+      </div>
+      <div class="cis-r-photo-col">
+        <div class="cis-r-photo">${photoHTML}</div>
+        <div class="cis-r-titulaire">Le Titulaire</div>
+        <div class="cis-r-sig-line"></div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function buildCisVerso(directeur,titre,devise,cachetImg,sigImg){
+  const cachetHTML=cachetImg
+    ?`<img src="${cachetImg}" style="max-width:72px;max-height:72px;mix-blend-mode:multiply;opacity:.9;">`
+    :`<div style="width:64px;height:64px;border:2px solid #C0392B;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:7px;color:#C0392B;text-align:center;font-weight:700;">Cachet</div>`;
+  const sigHTML=sigImg
+    ?`<img class="cis-v-sig-img" src="${sigImg}">`
+    :`<div class="cis-v-sig-line"></div>`;
+  const nomDir=escapeHtml(directeur||'LA DIRECTRICE');
+  const nomEcole=escapeHtml(schoolName||'GRÂCES DIVINES');
+  return `<div class="cis-verso">
+    <div class="cis-v-devise">${escapeHtml(devise||'Discipline - Travail - Succès')}</div>
+    <div class="cis-v-text">
+      Je soussigné M……………………………………………………<br>
+      de l'<strong>ECOLE PRIMAIRE PRIVEE</strong> <span class="vg">&laquo; ${nomEcole} &raquo;</span>,<br>
+      atteste que le (la) titulaire de cette<br>
+      carte est écolier (ère) dans mon établissement.
+    </div>
+    <div class="cis-v-bottom">
+      <div class="cis-v-sig-block">
+        ${cachetHTML}
+        ${sigHTML}
+        <div class="cis-v-sig-label">Signature et Cachet</div>
+      </div>
+      <div class="cis-v-cachet-rect">${nomDir}<br>Directrice</div>
+    </div>
+    <div class="cis-v-footer">
+      Cette carte doit être présentée à toute réquisition.<br>
+      En cas de perte, prière d'en informer l'établissement.
+    </div>
+  </div>`;
+}
+
+function affGenCartes(){
+  const cls=document.getElementById('aff-carte-classe').value;
+  const list=dossier.filter(r=>classeFinale(r)===cls);
+  const photosDiv=document.getElementById('aff-carte-photos');
+  const output=document.getElementById('aff-carte-output');
+
+  if(!list.length){
+    output.innerHTML='<div class="reg-empty">Aucun élève dans cette classe.</div>';
+    photosDiv.innerHTML=''; return;
+  }
+
+  // Photo upload zone per student
+  photosDiv.innerHTML=list.map(el=>`
+    <div style="text-align:center;font-size:11px;">
+      <label style="cursor:pointer;background:#F6F4FC;border:1px dashed var(--line);border-radius:8px;padding:6px 10px;display:block;">
+        📷 ${escapeHtml(el.nom)}<br>
+        <input type="file" accept="image/*" data-carte-id="${el.id}" style="display:none;">
+      </label>
+      ${affCartePhotos[el.id]?`<img src="${affCartePhotos[el.id]}" style="width:36px;height:44px;object-fit:cover;border-radius:3px;margin-top:4px;">`:''}
+    </div>`).join('');
+  photosDiv.querySelectorAll('input[data-carte-id]').forEach(inp=>{
+    inp.addEventListener('change',e=>{
+      const f=e.target.files[0]; if(!f) return;
+      const r=new FileReader(); r.onload=ev=>{
+        affCartePhotos[inp.dataset.carteId]=ev.target.result;
+        save('aff:carte:photos',affCartePhotos);
+        affGenCartes();
+      }; r.readAsDataURL(f);
+    });
+  });
+
+  // Get school data
+  const annee=load('settings',{}).annee||'';
+  const directeur=regCachetDir.nom||'';
+  const titre=load('registre:cachet:dir',{}).titre||'Mme';
+  const devise=load('aff:sante',[])||[];
+  const deviseText=load('registre:cachet:dir',{}).devise||'Discipline - Travail - Succès';
+  const cachetImg=regCachetEcole.dataUrl||'';
+  const sigImg=localStorage.getItem('monecole:registre:sig:mois:'+regClasse())||localStorage.getItem('monecole:registre:sig:eval:'+regClasse())||'';
+
+  output.innerHTML=`<div class="cis-cards-grid">${list.map(el=>`
+    <div class="cis-card-wrap">
+      <div class="cis-card-label">${escapeHtml(el.nom)} ${escapeHtml(el.prenom)} — Recto</div>
+      <div class="cis-card">${buildCisRecto(el,schoolLogo,annee)}</div>
+      <div class="cis-card-label">Verso</div>
+      <div class="cis-card">${buildCisVerso(directeur,titre,deviseText,cachetImg,sigImg)}</div>
+    </div>`).join('')}</div>`;
+  showToast(`${list.length} carte(s) générée(s) ✓`,'success');
+}
+
+/* ===================== Backup ===================== */
+function exportBackup(){
+  try{
+    const data = {};
+    for (let i=0; i<localStorage.length; i++){
+      const key = localStorage.key(i);
+      if (key && key.startsWith('monecole:')) data[key] = localStorage.getItem(key);
+    }
+    const blob = new Blob([JSON.stringify(data,null,2)], { type:'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = `mon-ecole-sauvegarde-${new Date().toISOString().slice(0,10)}.json`;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url), 20000);
+    showToast('Sauvegarde téléchargée ✓', 'success');
+  } catch(e){ showToast('Erreur lors de la sauvegarde', 'error'); }
+}
+function importBackup(e){
+  const file = e.target.files && e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    try{
+      const data = JSON.parse(reader.result);
+      Object.entries(data).forEach(([k,v])=> localStorage.setItem(k,v));
+      showToast('Fichier chargé ! Rechargement...', 'success');
+      setTimeout(()=>window.location.reload(), 900);
+    } catch(err){ showToast('Fichier invalide', 'error'); }
+  };
+  reader.readAsText(file);
+  e.target.value = '';
+}
+
+/* ===================== Init ===================== */
+if (load('darkMode', false)) document.body.classList.add('dark');
+
+function initApp(){
+  setupEditableImage('brand-logo','brand-logo-file','logoBrand', ()=>logoBrand, v=>logoBrand=v);
+  setupEditableImage('designer-photo','designer-photo-file','designerPhoto', ()=>designerPhoto, v=>designerPhoto=v);
+  setupEditableImage('school-logo','school-logo-file','schoolLogo', ()=>schoolLogo, v=>schoolLogo=v);
+
+  const schoolNameInput = document.getElementById('school-name-input');
+  schoolNameInput.value = schoolName;
+  schoolNameInput.addEventListener('input', e=>{ schoolName = e.target.value; save('schoolName', schoolName); });
+
+  const anneeInput = document.getElementById('annee-scolaire-input');
+  anneeInput.value = anneeScolaire;
+  anneeInput.addEventListener('input', e=>{ anneeScolaire = e.target.value; save('anneeScolaire', anneeScolaire); });
+
+  document.querySelectorAll('.tab-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+      document.getElementById('panel-'+btn.dataset.tab).classList.add('active');
+    });
+  });
+  document.querySelector('.tab-btn[data-tab="dossier"]').classList.add('active');
+
+  document.getElementById('save-now-btn').addEventListener('click', ()=> showToast('Toutes les données sont enregistrées ✓','success'));
+  document.getElementById('toggle-dark').addEventListener('click', ()=>{
+    document.body.classList.toggle('dark');
+    const isDark = document.body.classList.contains('dark');
+    save('darkMode', isDark);
+    document.getElementById('toggle-dark').textContent = isDark ? '☀️ Mode clair' : '🌙 Mode sombre';
+  });
+  if (document.body.classList.contains('dark')) document.getElementById('toggle-dark').textContent = '☀️ Mode clair';
+
+  document.getElementById('export-btn').addEventListener('click', exportBackup);
+  document.getElementById('import-file').addEventListener('change', importBackup);
+
+  renderDossier();
+  renderMaClasse();
+  initRegistre();
+  initAffichage();
+}
+</script>
+</body>
+</html>
