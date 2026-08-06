@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ma Boutique Scolaire by C-AREZ</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+  :root{
+    --ink:#1c2b39; --paper:#f6f2e9; --card:#ffffff; --line:#e2d9c6;
+    --brand:#1d5c4d; --brand-dark:#123f35; --gold:#c8912a; --red:#b3432b;
+    --muted:#6b7280; --shadow:0 6px 18px rgba(28,43,57,.08);
+    --radius:14px;
+  }
+  [data-theme="dark"]{
+    --ink:#eef2f1; --paper:#12181a; --card:#1b2426; --line:#2a3639;
+    --brand:#3fae8f; --brand-dark:#2c8570; --gold:#e0a94a; --red:#e0684d;
+    --muted:#9aa7a5; --shadow:0 6px 20px rgba(0,0,0,.4);
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;font-family:'Segoe UI',system-ui,sans-serif;background:var(--paper);
+    color:var(--ink); transition:background .3s,color .3s;
+  }
+  header{
+    background:linear-gradient(135deg,var(--brand),var(--brand-dark));
+    color:#fff;padding:18px 20px;display:flex;align-items:center;justify-content:space-between;
+    box-shadow:var(--shadow);position:sticky;top:0;z-index:50;
+  }
+  header .brand{display:flex;align-items:center;gap:12px;}
+  header .brand .logo{
+    width:44px;height:44px;border-radius:10px;background:var(--gold);
+    display:flex;align-items:center;justify-content:center;font-weight:800;color:#1d1300;font-size:18px;
+  }
+  header h1{font-size:17px;margin:0;line-height:1.2;}
+  header .sub{font-size:11px;opacity:.85;letter-spacing:.5px;}
+  header button{
+    background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;
+    padding:8px 12px;border-radius:8px;cursor:pointer;font-size:13px;
+  }
+  nav{
+    display:flex;gap:4px;overflow-x:auto;background:var(--card);border-bottom:1px solid var(--line);
+    padding:0 12px;position:sticky;top:74px;z-index:40;
+  }
+  nav button{
+    background:none;border:none;padding:13px 14px;font-size:13px;font-weight:600;color:var(--muted);
+    cursor:pointer;white-space:nowrap;border-bottom:3px solid transparent;
+  }
+  nav button.active{color:var(--brand);border-color:var(--gold);}
+  main{padding:16px;max-width:1000px;margin:0 auto;padding-bottom:70px;}
+  .subnav{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;}
+  .subnav button{
+    background:var(--card);border:1px solid var(--line);color:var(--ink);
+    padding:7px 13px;border-radius:20px;font-size:12.5px;cursor:pointer;font-weight:600;
+  }
+  .subnav button.active{background:var(--brand);color:#fff;border-color:var(--brand);}
+  .card{
+    background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    padding:16px;margin-bottom:14px;box-shadow:var(--shadow);
+  }
+  .card h2{margin:0 0 12px;font-size:15px;color:var(--brand);}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;}
+  .stat{
+    background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;text-align:center;
+  }
+  .stat .v{font-size:20px;font-weight:800;color:var(--brand);}
+  .stat.neg .v{color:var(--red);}
+  .stat .l{font-size:11px;color:var(--muted);margin-top:4px;}
+  table{width:100%;border-collapse:collapse;font-size:13px;}
+  th,td{padding:9px 6px;text-align:left;border-bottom:1px solid var(--line);}
+  th{color:var(--muted);font-size:11.5px;text-transform:uppercase;letter-spacing:.4px;}
+  tr:hover td{background:rgba(29,92,77,.05);}
+  input,select{
+    width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:8px;
+    background:var(--paper);color:var(--ink);font-size:13px;
+  }
+  label{font-size:11.5px;color:var(--muted);display:block;margin-bottom:4px;font-weight:600;}
+  .field{margin-bottom:10px;}
+  .row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+  .btn{
+    background:var(--brand);color:#fff;border:none;padding:10px 16px;border-radius:8px;
+    font-weight:700;font-size:13px;cursor:pointer;
+  }
+  .btn.gold{background:var(--gold);color:#1d1300;}
+  .btn.red{background:var(--red);}
+  .btn.ghost{background:transparent;color:var(--brand);border:1px solid var(--brand);}
+  .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}
+  .badge{padding:3px 8px;border-radius:20px;font-size:11px;font-weight:700;}
+  .badge.ok{background:rgba(29,92,77,.15);color:var(--brand);}
+  .badge.low{background:rgba(179,67,43,.15);color:var(--red);}
+  .lock{
+    position:fixed;inset:0;background:var(--paper);z-index:200;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;gap:14px;
+  }
+  .lock input{width:200px;text-align:center;font-size:22px;letter-spacing:8px;}
+  .empty{text-align:center;color:var(--muted);padding:20px;font-size:13px;}
+  .del{background:none;border:none;color:var(--red);cursor:pointer;font-size:16px;}
+  ::-webkit-scrollbar{height:6px;}
+</style>
+</head>
+<body data-theme="light">
+
+<div class="lock" id="lockScreen">
+  <div style="font-size:40px;">🏫</div>
+  <h2 style="margin:0;">Ma Boutique Scolaire</h2>
+  <div style="color:var(--muted);font-size:13px;">by C-AREZ — Entrez le code d'accès</div>
+  <input type="password" id="codeInput" maxlength="4" placeholder="••••">
+  <button class="btn" onclick="checkCode()">Déverrouiller</button>
+  <div id="lockMsg" style="color:var(--red);font-size:12px;"></div>
+</div>
+
+<header>
+  <div class="brand">
+    <div class="logo">CZ</div>
+    <div>
+      <h1>Ma Boutique Scolaire</h1>
+      <div class="sub">by C-AREZ</div>
+    </div>
+  </div>
+  <button onclick="toggleTheme()" id="themeBtn">🌙 Sombre</button>
+</header>
+
+<nav>
+  <button class="tab active" data-tab="accueil" onclick="showTab('accueil')">🏠 Accueil</button>
+  <button class="tab" data-tab="stock" onclick="showTab('stock')">📦 Stock</button>
+  <button class="tab" data-tab="ventes" onclick="showTab('ventes')">🧾 Ventes</button>
+  <button class="tab" data-tab="compta" onclick="showTab('compta')">💰 Comptabilité</button>
+  <button class="tab" data-tab="reglages" onclick="showTab('reglages')">⚙️ Réglages</button>
+</nav>
+
+<main>
+
+<!-- ACCUEIL -->
+<div class="page" id="page-accueil">
+  <div class="card">
+    <h2>Résumé du jour — <span id="todayLabel"></span></h2>
+    <div class="grid" id="dashStats"></div>
+  </div>
+  <div class="card">
+    <h2>Alertes de stock</h2>
+    <div id="stockAlerts"></div>
+  </div>
+</div>
+
+<!-- STOCK -->
+<div class="page" id="page-stock" style="display:none;">
+  <div class="card">
+    <h2>➕ Ajouter / modifier un article</h2>
+    <div class="row3">
+      <div class="field"><label>Article</label><input id="artNom" placeholder="Ex: Bic bleu"></div>
+      <div class="field"><label>Prix unitaire (FCFA)</label><input id="artPrix" type="number"></div>
+      <div class="field"><label>Stock initial</label><input id="artStock" type="number"></div>
+    </div>
+    <button class="btn" onclick="addArticle()">Enregistrer l'article</button>
+  </div>
+  <div class="card">
+    <h2>📋 Registre des articles (<span id="artCount">0</span>)</h2>
+    <table>
+      <thead><tr><th>Article</th><th>Prix (FCFA)</th><th>Stock restant</th><th>État</th><th></th></tr></thead>
+      <tbody id="stockTable"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- VENTES -->
+<div class="page" id="page-ventes" style="display:none;">
+  <div class="card">
+    <h2>🧾 Nouvelle vente</h2>
+    <div class="row3">
+      <div class="field"><label>Article</label><select id="venteArticle"></select></div>
+      <div class="field"><label>Quantité</label><input id="venteQte" type="number" value="1" min="1"></div>
+      <div class="field"><label>Mode de paiement</label>
+        <select id="ventePaiement"><option>Espèces</option><option>Mobile Money</option><option>Crédit</option></select>
+      </div>
+    </div>
+    <button class="btn" onclick="addVente()">Enregistrer la vente</button>
+  </div>
+  <div class="card">
+    <h2>📜 Historique des ventes</h2>
+    <table>
+      <thead><tr><th>Date</th><th>Article</th><th>Qté</th><th>Total</th><th>Paiement</th><th></th></tr></thead>
+      <tbody id="ventesTable"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- COMPTABILITE -->
+<div class="page" id="page-compta" style="display:none;">
+  <div class="subnav">
+    <button class="csub active" data-c="caisse" onclick="showCompta('caisse')">💵 Caisse</button>
+    <button class="csub" data-c="depenses" onclick="showCompta('depenses')">📤 Dépenses</button>
+    <button class="csub" data-c="bilan" onclick="showCompta('bilan')">📊 Bilan</button>
+    <button class="csub" data-c="rapport" onclick="showCompta('rapport')">📄 Rapport</button>
+  </div>
+
+  <div class="cpage" id="cpage-caisse">
+    <div class="card">
+      <h2>💵 État de la caisse</h2>
+      <div class="grid" id="caisseStats"></div>
+    </div>
+    <div class="card">
+      <h2>Mouvements récents</h2>
+      <table><thead><tr><th>Date</th><th>Type</th><th>Libellé</th><th>Montant</th></tr></thead>
+      <tbody id="mouvementsTable"></tbody></table>
+    </div>
+  </div>
+
+  <div class="cpage" id="cpage-depenses" style="display:none;">
+    <div class="card">
+      <h2>➕ Nouvelle dépense</h2>
+      <div class="row3">
+        <div class="field"><label>Libellé</label><input id="depLibelle" placeholder="Ex: Transport, Achat stock..."></div>
+        <div class="field"><label>Catégorie</label>
+          <select id="depCat"><option>Achat marchandise</option><option>Transport</option><option>Loyer</option><option>Salaire</option><option>Autre</option></select>
+        </div>
+        <div class="field"><label>Montant (FCFA)</label><input id="depMontant" type="number"></div>
+      </div>
+      <button class="btn red" onclick="addDepense()">Enregistrer la dépense</button>
+    </div>
+    <div class="card">
+      <h2>📤 Historique des dépenses</h2>
+      <table><thead><tr><th>Date</th><th>Libellé</th><th>Catégorie</th><th>Montant</th><th></th></tr></thead>
+      <tbody id="depensesTable"></tbody></table>
+    </div>
+  </div>
+
+  <div class="cpage" id="cpage-bilan" style="display:none;">
+    <div class="card">
+      <h2>📊 Bilan global</h2>
+      <div class="grid" id="bilanStats"></div>
+    </div>
+    <div class="card">
+      <h2>Détail par article vendu</h2>
+      <table><thead><tr><th>Article</th><th>Qté vendue</th><th>Recette (FCFA)</th></tr></thead>
+      <tbody id="bilanArticles"></tbody></table>
+    </div>
+  </div>
+
+  <div class="cpage" id="cpage-rapport" style="display:none;">
+    <div class="card">
+      <h2>📄 Rapport comptable</h2>
+      <p style="font-size:13px;color:var(--muted);">Génère un rapport PDF complet : recettes, dépenses, solde de caisse et état du stock.</p>
+      <button class="btn gold" onclick="generateReport()">⬇️ Télécharger le rapport PDF</button>
+    </div>
+  </div>
+</div>
+
+<!-- REGLAGES -->
+<div class="page" id="page-reglages" style="display:none;">
+  <div class="card">
+    <h2>💾 Sauvegarde / Restauration</h2>
+    <div class="actions">
+      <button class="btn" onclick="exportBackup()">Exporter la sauvegarde (JSON)</button>
+      <label class="btn ghost" style="display:inline-block;text-align:center;cursor:pointer;">
+        Charger un fichier
+        <input type="file" id="importFile" accept=".json" style="display:none;" onchange="importBackup(event)">
+      </label>
+    </div>
+  </div>
+  <div class="card">
+    <h2>🔒 Code d'accès</h2>
+    <div class="field"><label>Nouveau code (4 chiffres)</label><input id="newCode" maxlength="4" placeholder="1234"></div>
+    <button class="btn" onclick="changeCode()">Mettre à jour le code</button>
+  </div>
+  <div class="card">
+    <h2 style="color:var(--red);">⚠️ Zone sensible</h2>
+    <button class="btn red" onclick="resetAll()">Réinitialiser toutes les données</button>
+  </div>
+</div>
+
+</main>
+
+<script>
+const DEFAULT_ARTICLES = [
+ {nom:"Chiffon",prix:25,stock:24},{nom:"Bic bleu",prix:50,stock:35},{nom:"Bic rouge",prix:50,stock:15},
+ {nom:"Bic vert",prix:50,stock:23},{nom:"Cahier 100 pages",prix:150,stock:20},{nom:"Cahier 200 pages",prix:250,stock:5},
+ {nom:"Cahier 50 pages",prix:100,stock:20},{nom:"Crayon à papier",prix:55,stock:24},{nom:"Ardoise 100 F",prix:100,stock:14},
+ {nom:"Ardoise 200 F",prix:200,stock:1},{nom:"Ardoise 300 F",prix:300,stock:7},{nom:"Ardoise 500 F",prix:500,stock:6},
+ {nom:"Règle 50 F",prix:50,stock:24},{nom:"Règle 100 F",prix:100,stock:9},{nom:"Taille-crayon",prix:25,stock:15},
+ {nom:"Crayon de couleur 100 F",prix:100,stock:8},{nom:"Crayon de couleur 200 F",prix:200,stock:3},
+ {nom:"Gomme",prix:50,stock:20},{nom:"Craie",prix:25,stock:80}
+];
+
+let DB = {code:"1234", articles:[], ventes:[], depenses:[]};
+
+function loadDB(){
+  const raw = localStorage.getItem("boutiqueCAREZ");
+  if(raw){ DB = JSON.parse(raw); }
+  else{
+    DB.articles = DEFAULT_ARTICLES.map((a,i)=>({id:"a"+i, nom:a.nom, prix:a.prix, stock:a.stock}));
+    saveDB();
+  }
+}
+function saveDB(){ localStorage.setItem("boutiqueCAREZ", JSON.stringify(DB)); }
+
+// ---- LOCK ----
+function checkCode(){
+  const v = document.getElementById("codeInput").value;
+  if(v === DB.code){
+    document.getElementById("lockScreen").style.display="none";
+  } else {
+    document.getElementById("lockMsg").textContent = "Code incorrect.";
+  }
+}
+document.getElementById("codeInput")?.addEventListener("keyup", e=>{ if(e.key==="Enter") checkCode(); });
+
+// ---- THEME ----
+function toggleTheme(){
+  const b = document.body;
+  const isDark = b.getAttribute("data-theme")==="dark";
+  b.setAttribute("data-theme", isDark? "light":"dark");
+  document.getElementById("themeBtn").textContent = isDark? "🌙 Sombre":"☀️ Clair";
+  localStorage.setItem("theme", isDark?"light":"dark");
+}
+
+// ---- TABS ----
+function showTab(t){
+  document.querySelectorAll(".page").forEach(p=>p.style.display="none");
+  document.getElementById("page-"+t).style.display="block";
+  document.querySelectorAll(".tab").forEach(b=>b.classList.remove("active"));
+  document.querySelector(`.tab[data-tab="${t}"]`).classList.add("active");
+  renderAll();
+}
+function showCompta(c){
+  document.querySelectorAll(".cpage").forEach(p=>p.style.display="none");
+  document.getElementById("cpage-"+c).style.display="block";
+  document.querySelectorAll(".csub").forEach(b=>b.classList.remove("active"));
+  document.querySelector(`.csub[data-c="${c}"]`).classList.add("active");
+  renderAll();
+}
+
+// ---- ARTICLES / STOCK ----
+function addArticle(){
+  const nom = document.getElementById("artNom").value.trim();
+  const prix = parseFloat(document.getElementById("artPrix").value);
+  const stock = parseInt(document.getElementById("artStock").value);
+  if(!nom || isNaN(prix) || isNaN(stock)){ alert("Veuillez remplir tous les champs."); return; }
+  DB.articles.push({id:"a"+Date.now(), nom, prix, stock});
+  saveDB();
+  document.getElementById("artNom").value="";
+  document.getElementById("artPrix").value="";
+  document.getElementById("artStock").value="";
+  renderAll();
+}
+function deleteArticle(id){
+  if(!confirm("Supprimer cet article ?")) return;
+  DB.articles = DB.articles.filter(a=>a.id!==id);
+  saveDB(); renderAll();
+}
+
+// ---- VENTES ----
+function addVente(){
+  const artId = document.getElementById("venteArticle").value;
+  const qte = parseInt(document.getElementById("venteQte").value);
+  const paiement = document.getElementById("ventePaiement").value;
+  const art = DB.articles.find(a=>a.id===artId);
+  if(!art || isNaN(qte) || qte<1){ alert("Vente invalide."); return; }
+  if(qte > art.stock){ alert("Stock insuffisant pour "+art.nom+" (restant: "+art.stock+")."); return; }
+  art.stock -= qte;
+  DB.ventes.push({id:"v"+Date.now(), date:new Date().toISOString(), articleId:art.id, articleNom:art.nom,
+    qte, prixUnitaire:art.prix, total:qte*art.prix, paiement});
+  saveDB();
+  document.getElementById("venteQte").value=1;
+  renderAll();
+}
+function deleteVente(id){
+  const v = DB.ventes.find(x=>x.id===id);
+  if(!v) return;
+  if(!confirm("Annuler cette vente ? Le stock sera restitué.")) return;
+  const art = DB.articles.find(a=>a.id===v.articleId);
+  if(art) art.stock += v.qte;
+  DB.ventes = DB.ventes.filter(x=>x.id!==id);
+  saveDB(); renderAll();
+}
+
+// ---- DEPENSES ----
+function addDepense(){
+  const libelle = document.getElementById("depLibelle").value.trim();
+  const cat = document.getElementById("depCat").value;
+  const montant = parseFloat(document.getElementById("depMontant").value);
+  if(!libelle || isNaN(montant)){ alert("Veuillez remplir tous les champs."); return; }
+  DB.depenses.push({id:"d"+Date.now(), date:new Date().toISOString(), libelle, cat, montant});
+  saveDB();
+  document.getElementById("depLibelle").value="";
+  document.getElementById("depMontant").value="";
+  renderAll();
+}
+function deleteDepense(id){
+  if(!confirm("Supprimer cette dépense ?")) return;
+  DB.depenses = DB.depenses.filter(d=>d.id!==id);
+  saveDB(); renderAll();
+}
+
+// ---- HELPERS ----
+function fmt(n){ return Number(n||0).toLocaleString("fr-FR")+" F"; }
+function totalRecettes(){ return DB.ventes.reduce((s,v)=>s+v.total,0); }
+function totalDepenses(){ return DB.depenses.reduce((s,d)=>s+d.montant,0); }
+function soldeCaisse(){ return totalRecettes()-totalDepenses(); }
+function valeurStock(){ return DB.articles.reduce((s,a)=>s+a.prix*a.stock,0); }
+
+// ---- RENDER ----
+function renderAll(){
+  document.getElementById("todayLabel").textContent = new Date().toLocaleDateString("fr-FR",{weekday:'long',day:'numeric',month:'long'});
+
+  // dashboard
+  const today = new Date().toDateString();
+  const ventesToday = DB.ventes.filter(v=>new Date(v.date).toDateString()===today);
+  const recetteToday = ventesToday.reduce((s,v)=>s+v.total,0);
+  document.getElementById("dashStats").innerHTML = `
+    <div class="stat"><div class="v">${fmt(recetteToday)}</div><div class="l">Recette du jour</div></div>
+    <div class="stat"><div class="v">${ventesToday.length}</div><div class="l">Ventes aujourd'hui</div></div>
+    <div class="stat"><div class="v">${fmt(soldeCaisse())}</div><div class="l">Solde caisse</div></div>
+    <div class="stat"><div class="v">${fmt(valeurStock())}</div><div class="l">Valeur du stock</div></div>
+  `;
+  const lows = DB.articles.filter(a=>a.stock<=5);
+  document.getElementById("stockAlerts").innerHTML = lows.length? lows.map(a=>
+    `<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--line);">
+      <span>${a.nom}</span><span class="badge low">${a.stock} restant(s)</span></div>`).join("")
+    : `<div class="empty">Aucune alerte — stocks corrects ✅</div>`;
+
+  // stock
+  document.getElementById("artCount").textContent = DB.articles.length;
+  document.getElementById("stockTable").innerHTML = DB.articles.map(a=>`
+    <tr><td>${a.nom}</td><td>${fmt(a.prix)}</td><td>${a.stock}</td>
+    <td>${a.stock<=5?'<span class="badge low">Faible</span>':'<span class="badge ok">OK</span>'}</td>
+    <td><button class="del" onclick="deleteArticle('${a.id}')">✕</button></td></tr>`).join("")
+    || `<tr><td colspan="5" class="empty">Aucun article enregistré</td></tr>`;
+
+  // ventes select
+  const sel = document.getElementById("venteArticle");
+  if(sel){
+    sel.innerHTML = DB.articles.map(a=>`<option value="${a.id}">${a.nom} (${fmt(a.prix)}) — stock: ${a.stock}</option>`).join("");
+  }
+  document.getElementById("ventesTable").innerHTML = DB.ventes.slice().reverse().map(v=>`
+    <tr><td>${new Date(v.date).toLocaleDateString("fr-FR")}</td><td>${v.articleNom}</td><td>${v.qte}</td>
+    <td>${fmt(v.total)}</td><td>${v.paiement}</td><td><button class="del" onclick="deleteVente('${v.id}')">✕</button></td></tr>`).join("")
+    || `<tr><td colspan="6" class="empty">Aucune vente enregistrée</td></tr>`;
+
+  // caisse
+  document.getElementById("caisseStats").innerHTML = `
+    <div class="stat"><div class="v">${fmt(totalRecettes())}</div><div class="l">Total recettes</div></div>
+    <div class="stat neg"><div class="v">${fmt(totalDepenses())}</div><div class="l">Total dépenses</div></div>
+    <div class="stat"><div class="v">${fmt(soldeCaisse())}</div><div class="l">Solde net</div></div>
+  `;
+  const mouvements = [
+    ...DB.ventes.map(v=>({date:v.date,type:"Recette",libelle:"Vente: "+v.articleNom,montant:v.total})),
+    ...DB.depenses.map(d=>({date:d.date,type:"Dépense",libelle:d.libelle,montant:-d.montant}))
+  ].sort((a,b)=>new Date(b.date)-new Date(a.date)).slice(0,25);
+  document.getElementById("mouvementsTable").innerHTML = mouvements.map(m=>`
+    <tr><td>${new Date(m.date).toLocaleDateString("fr-FR")}</td>
+    <td><span class="badge ${m.montant>=0?'ok':'low'}">${m.type}</span></td>
+    <td>${m.libelle}</td><td>${m.montant>=0?'+':''}${fmt(m.montant)}</td></tr>`).join("")
+    || `<tr><td colspan="4" class="empty">Aucun mouvement</td></tr>`;
+
+  // depenses
+  document.getElementById("depensesTable").innerHTML = DB.depenses.slice().reverse().map(d=>`
+    <tr><td>${new Date(d.date).toLocaleDateString("fr-FR")}</td><td>${d.libelle}</td><td>${d.cat}</td>
+    <td>${fmt(d.montant)}</td><td><button class="del" onclick="deleteDepense('${d.id}')">✕</button></td></tr>`).join("")
+    || `<tr><td colspan="5" class="empty">Aucune dépense enregistrée</td></tr>`;
+
+  // bilan
+  document.getElementById("bilanStats").innerHTML = `
+    <div class="stat"><div class="v">${fmt(totalRecettes())}</div><div class="l">Recettes totales</div></div>
+    <div class="stat neg"><div class="v">${fmt(totalDepenses())}</div><div class="l">Dépenses totales</div></div>
+    <div class="stat"><div class="v">${fmt(soldeCaisse())}</div><div class="l">Bénéfice net</div></div>
+    <div class="stat"><div class="v">${fmt(valeurStock())}</div><div class="l">Valeur stock restant</div></div>
+  `;
+  const parArticle = {};
+  DB.ventes.forEach(v=>{
+    if(!parArticle[v.articleNom]) parArticle[v.articleNom]={qte:0,total:0};
+    parArticle[v.articleNom].qte += v.qte;
+    parArticle[v.articleNom].total += v.total;
+  });
+  const rows = Object.entries(parArticle).sort((a,b)=>b[1].total-a[1].total);
+  document.getElementById("bilanArticles").innerHTML = rows.map(([nom,d])=>
+    `<tr><td>${nom}</td><td>${d.qte}</td><td>${fmt(d.total)}</td></tr>`).join("")
+    || `<tr><td colspan="3" class="empty">Aucune vente enregistrée</td></tr>`;
+}
+
+// ---- PDF REPORT ----
+function generateReport(){
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  const date = new Date().toLocaleDateString("fr-FR");
+  doc.setFontSize(16); doc.text("Ma Boutique Scolaire — Rapport Comptable", 14, 18);
+  doc.setFontSize(10); doc.text("by C-AREZ — généré le "+date, 14, 24);
+  doc.setFontSize(12);
+  let y = 36;
+  doc.text("Résumé financier", 14, y); y+=6;
+  doc.setFontSize(10);
+  doc.text("Total recettes : "+fmt(totalRecettes()), 14, y); y+=6;
+  doc.text("Total dépenses : "+fmt(totalDepenses()), 14, y); y+=6;
+  doc.text("Solde de caisse : "+fmt(soldeCaisse()), 14, y); y+=6;
+  doc.text("Valeur du stock restant : "+fmt(valeurStock()), 14, y); y+=10;
+
+  doc.setFontSize(12); doc.text("État du stock", 14, y); y+=6;
+  doc.setFontSize(9);
+  DB.articles.forEach(a=>{
+    if(y>270){ doc.addPage(); y=20; }
+    doc.text(`${a.nom} — Prix: ${fmt(a.prix)} — Stock: ${a.stock}`, 14, y); y+=5.5;
+  });
+  y+=6;
+  doc.setFontSize(12); doc.text("Dépenses enregistrées", 14, y); y+=6;
+  doc.setFontSize(9);
+  DB.depenses.forEach(d=>{
+    if(y>270){ doc.addPage(); y=20; }
+    doc.text(`${new Date(d.date).toLocaleDateString("fr-FR")} — ${d.libelle} (${d.cat}) — ${fmt(d.montant)}`, 14, y); y+=5.5;
+  });
+
+  doc.save("rapport-comptable-CAREZ.pdf");
+}
+
+// ---- BACKUP ----
+function exportBackup(){
+  const blob = new Blob([JSON.stringify(DB,null,2)], {type:"application/json"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = "sauvegarde-boutique-CAREZ.json"; a.click();
+  URL.revokeObjectURL(url);
+}
+function importBackup(e){
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = evt=>{
+    try{
+      const data = JSON.parse(evt.target.result);
+      DB = data; saveDB(); renderAll();
+      alert("Sauvegarde chargée avec succès !");
+    }catch(err){ alert("Fichier invalide."); }
+  };
+  reader.readAsText(file);
+}
+function changeCode(){
+  const c = document.getElementById("newCode").value;
+  if(c.length!==4 || isNaN(c)){ alert("Le code doit contenir 4 chiffres."); return; }
+  DB.code = c; saveDB();
+  document.getElementById("newCode").value="";
+  alert("Code mis à jour.");
+}
+function resetAll(){
+  if(!confirm("Cette action supprimera TOUTES les données. Continuer ?")) return;
+  localStorage.removeItem("boutiqueCAREZ");
+  location.reload();
+}
+
+// init
+loadDB();
+if(localStorage.getItem("theme")==="dark"){ document.body.setAttribute("data-theme","dark"); document.getElementById("themeBtn").textContent="☀️ Clair"; }
+renderAll();
+</script>
+</body>
+</html>
